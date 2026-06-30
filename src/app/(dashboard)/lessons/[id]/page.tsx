@@ -18,18 +18,21 @@ export default function LessonDetailPage() {
 
   useEffect(() => {
     if (!topic || !user) return;
+    const uid = user.uid;
+    const topicTitle = topic.title;
+    const topicLevel = topic.level;
 
     async function generate() {
       setLoading(true);
-      const userData = await getUserData(user.uid);
+      const userData = await getUserData(uid);
       const weakAreas = (userData?.weakAreas as string[]) || [];
 
       const res = await fetch('/api/lessons/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topic: topic.title,
-          skillLevel: topic.level,
+          topic: topicTitle,
+          skillLevel: topicLevel,
           weakAreas,
         }),
       });
@@ -47,7 +50,7 @@ export default function LessonDetailPage() {
   }
 
   async function markComplete(level: number) {
-    if (!user) return;
+    if (!user || !topic) return;
     await updateUserProgress(user.uid, {
       [`progress.${id}`]: {
         completedAt: new Date().toISOString(),

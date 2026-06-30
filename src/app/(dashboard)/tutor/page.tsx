@@ -20,11 +20,11 @@ export default function TutorPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (user) {
-      getUserData(user.uid).then((data) => {
-        if (data?.weakAreas) setWeakAreas(data.weakAreas as string[]);
-      });
-    }
+    if (!user) return;
+    const uid = user.uid;
+    getUserData(uid).then((data) => {
+      if (data?.weakAreas) setWeakAreas(data.weakAreas as string[]);
+    });
   }, [user]);
 
   useEffect(() => {

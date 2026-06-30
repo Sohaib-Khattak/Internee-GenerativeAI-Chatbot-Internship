@@ -14,9 +14,9 @@ export default function DashboardPage() {
   const [data, setData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    if (user) {
-      getUserData(user.uid).then(setData);
-    }
+    if (!user) return;
+    const uid = user.uid;
+    getUserData(uid).then(setData);
   }, [user]);
 
   return (

@@ -14,9 +14,9 @@ export default function ProgressPage() {
   const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      getUserData(user.uid).then((d) => setData(d as ProgressData));
-    }
+    if (!user) return;
+    const uid = user.uid;
+    getUserData(uid).then((d) => setData(d as ProgressData));
   }, [user]);
 
   async function runAnalysis() {
