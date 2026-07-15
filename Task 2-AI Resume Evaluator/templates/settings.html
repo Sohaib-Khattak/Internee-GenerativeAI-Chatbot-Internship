@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Settings — AI Resume Evaluator{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px;">
+  <h1 style="margin-bottom: var(--space-6);">Settings</h1>
+
+  <div class="card">
+    <h3 class="card-header">Account</h3>
+    {% if current_user %}
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <p style="color: var(--gray-700); font-size: 0.9375rem;">{{ current_user.email }}</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Account Created</label>
+      <p style="color: var(--gray-500); font-size: 0.875rem;">
+        {{ current_user.created_at[:10] if current_user.created_at else 'N/A' }}
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Total Evaluations</label>
+      <p style="color: var(--gray-700); font-size: 0.9375rem;">{{ current_user.total_evaluations or 0 }}</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Account Tier</label>
+      <p>
+        <span class="badge badge-low">Free</span>
+        <span style="font-size: 0.8125rem; color: var(--gray-500); margin-left: var(--space-2);">
+          10 evaluations/day
+        </span>
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card mt-4">
+    <h3 class="card-header">Preferences</h3>
+
+    <div class="form-group">
+      <label class="form-label">Dark Mode</label>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Use the 🌙/☀️ toggle in the navigation bar to switch between light and dark themes.
+        Your preference is saved automatically.
+      </p>
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <h3 class="card-header">Data & Privacy</h3>
+    <p style="font-size: 0.875rem; color: var(--gray-500);">
+      Your resume data is stored securely and automatically deleted after 30 days.
+      Evaluations are stored as JSON files and are only accessible to you.
+    </p>
+    <p style="font-size: 0.875rem; color: var(--gray-500); margin-top: var(--space-2);">
+      PII masking is applied before any data is sent to the AI for evaluation.
+      Anonymous evaluation mode is available on the upload page.
+    </p>
+  </div>
+
+  <div class="card mt-4">
+    <h3 class="card-header">About</h3>
+    <p style="font-size: 0.875rem; color: var(--gray-500);">
+      <strong>AI Resume Evaluator</strong> v1.0 (MVP)
+    </p>
+    <p style="font-size: 0.875rem; color: var(--gray-500);">
+      Powered by <strong>DeepSeek v4</strong> via OpenCode Zen API.
+      Built with Flask, LangChain, and Pydantic.
+    </p>
+    <p style="font-size: 0.8125rem; color: var(--gray-400); margin-top: var(--space-1);">
+      &copy; 2026 &mdash; AI-generated evaluations are guidance only.
+      Always review AI suggestions critically.
+    </p>
+  </div>
+</div>
+{% endblock %}

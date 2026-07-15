@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Evaluate Resume — AI Resume Evaluator{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 720px;">
+  <h1 style="margin-bottom: var(--space-2);">Evaluate Your Resume</h1>
+  <p style="color: var(--gray-500); margin-bottom: var(--space-6);">
+    Upload your resume (PDF, DOCX, or TXT) and get AI-powered feedback within seconds.
+  </p>
+
+  {% if limit_reached %}
+  <div class="card" style="background-color: #fffbeb; border-color: var(--warning); text-align: center;">
+    <h3 style="color: #92400e;">Daily Limit Reached</h3>
+    <p style="color: #92400e;">
+      You've used all {{ max_file_size_mb }} free evaluations today.
+      <br><strong>Upgrade to Pro</strong> for unlimited evaluations.
+    </p>
+    <a href="#" class="btn btn-accent mt-3">Upgrade to Pro</a>
+  </div>
+  {% endif %}
+
+  <!-- Upload Form -->
+  <form
+    method="POST"
+    action="{{ url_for('upload.process') }}"
+    enctype="multipart/form-data"
+    id="uploadForm"
+  >
+    <!-- Drag-and-drop zone -->
+    <div
+      class="upload-zone"
+      id="dropZone"
+      onclick="document.getElementById('fileInput').click()"
+    >
+      <div class="upload-zone-icon">📄</div>
+      <p class="upload-zone-text">
+        <strong>Click to upload</strong> or drag and drop
+      </p>
+      <p class="upload-zone-hint">
+        PDF, DOCX, or TXT — Max {{ max_file_size_mb }} MB
+      </p>
+      <input
+        type="file"
+        id="fileInput"
+        name="resume"
+        accept=".pdf,.docx,.txt"
+      >
+    </div>
+
+    <!-- File info (shown after selection) -->
+    <div id="fileInfo" class="file-info" style="display: none;">
+      <div>
+        <div class="file-info-name" id="fileName"></div>
+        <div class="file-info-size" id="fileSize"></div>
+      </div>
+      <span class="file-info-remove" onclick="removeFile()">Remove</span>
+    </div>
+
+    <!-- Options -->
+    <div class="card mt-4">
+      <h3 class="card-header">Options</h3>
+
+      <div class="form-group">
+        <label for="targetRole" class="form-label">
+          Target Role / Job Description
+          <span style="color: var(--gray-400); font-weight: 400;">(optional)</span>
+        </label>
+        <textarea
+          id="targetRole"
+          name="target_role"
+          class="form-textarea"
+          placeholder="e.g., Senior Software Engineer at a SaaS company..."
+          rows="3"
+          maxlength="2000"
+        >{{ target_role or '' }}</textarea>
+        <div class="form-hint">
+          Providing a target role improves evaluation relevance. Max 2000 characters.
+        </div>
+      </div>
+
+      <div class="form-checkbox">
+        <input
+          type="checkbox"
+          id="anonymousEval"
+          name="anonymous_eval"
+          {% if anonymous %}checked{% endif %}
+        >
+        <label for="anonymousEval" style="cursor: pointer; font-size: 0.875rem;">
+          <strong>Enable anonymous evaluation</strong>
+          <span style="color: var(--gray-500);">— mask my name before AI analysis</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex items-center gap-3 mt-4">
+      <button
+        type="submit"
+        class="btn btn-primary btn-lg"
+        id="evaluateBtn"
+        disabled
+      >
+        Evaluate Resume
+      </button>
+
+      {% if current_user %}
+      <a href="{{ url_for('history.index') }}" class="btn btn-secondary">
+        View History
+      </a>
+      {% endif %}
+    </div>
+  </form>
+
+  <!-- Text preview (shown after processing) -->
+  {% if text_preview %}
+  <div class="card mt-6">
+    <div class="flex items-center justify-between">
+      <h3 class="card-header" style="border: none; padding: 0; margin: 0;">
+        Text Preview — {{ filename }}
+      </h3>
+      <span style="font-size: 0.8125rem; color: var(--gray-500);">
+        {{ pages }} page{% if pages != 1 %}s{% endif %} · {{ file_format|upper }}
+        {% if file_size %}
+        · {{ (file_size / 1024)|round(1) }} KB
+        {% endif %}
+      </span>
+    </div>
+
+    {% if truncated %}
+    <div class="badge badge-medium" style="margin-bottom: var(--space-3);">
+      Truncated at 50,000 characters
+    </div>
+    {% endif %}
+
+    <pre
+      style="
+        background-color: var(--gray-50);
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+        font-size: 0.8125rem;
+        font-family: var(--font-mono);
+        line-height: 1.5;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 0;
+      "
+    >{{ text_preview }}</pre>
+
+    <div class="flex items-center gap-3 mt-4">
+      <form method="POST" action="{{ url_for('results.evaluate') }}" id="evaluateForm">
+        {% if target_role %}
+        <input type="hidden" name="target_role" value="{{ target_role }}">
+        {% endif %}
+        {% if anonymous %}
+        <input type="hidden" name="anonymous_eval" value="on">
+        {% endif %}
+        <button type="submit" class="btn btn-accent btn-lg" id="runEvalBtn">
+          Run Evaluation →
+        </button>
+      </form>
+
+      <a href="{{ url_for('upload.index') }}" class="btn btn-secondary">
+        Upload Different File
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Loading overlay (shown during evaluation) -->
+  <div id="loadingOverlay" class="loading-overlay card mt-4" style="display: none;">
+    <div class="spinner" style="width: 48px; height: 48px; border-width: 4px;"></div>
+    <h3 style="color: var(--gray-700);">Analyzing Your Resume</h3>
+    <p class="loading-text">
+      Reading content, evaluating across 6 categories...
+    </p>
+    <p class="loading-text" style="font-size: 0.8125rem;" id="slowWarning" hidden>
+      This is taking longer than usual.
+      <a href="#" onclick="window.location.reload()">Try again</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Show loading overlay on evaluate form submit
+  document.getElementById('evaluateForm')?.addEventListener('submit', function() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('runEvalBtn').disabled = true;
+
+    // Show slow warning after 15s
+    setTimeout(function() {
+      document.getElementById('slowWarning').hidden = false;
+    }, 15000);
+  });
+
+  // Slow warning timeout
+  let slowTimeout = null;
+
+  document.querySelectorAll('#uploadForm input[type="file"]').forEach(input => {
+    input.addEventListener('change', function(e) {
+      if (this.files && this.files[0]) {
+        const file = this.files[0];
+        const validTypes = ['.pdf', '.docx', '.txt'];
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+
+        if (validTypes.includes(ext)) {
+          document.getElementById('fileInfo').style.display = 'flex';
+          document.getElementById('fileName').textContent = file.name;
+          document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+          document.getElementById('evaluateBtn').disabled = false;
+        } else {
+          alert('Please select a PDF, DOCX, or TXT file.');
+          this.value = '';
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

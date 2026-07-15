@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered resume evaluation — get actionable feedback on your resume in seconds.">
+  <title>{% block title %}AI Resume Evaluator{% endblock %}</title>
+
+  <!-- Tailwind CSS via CDN (utility classes for rapid prototyping) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: { preflight: false },
+    };
+  </script>
+
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- ============================================================
+       Navigation Bar
+       ============================================================ -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-inner">
+      <a href="{{ url_for('upload.index') }}" class="navbar-brand">
+        <!-- Brand icon (simple checkmark/star) -->
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="currentColor"/>
+          <path d="M9 16.5l4.5 4.5L23 11" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>ResumeEvaluator</span>
+      </a>
+
+      <ul class="nav-links">
+        {% if current_user %}
+          <li><a href="{{ url_for('upload.index') }}" class="nav-link {% if request.endpoint and 'upload' in request.endpoint %}active{% endif %}">Evaluate</a></li>
+          <li><a href="{{ url_for('history.index') }}" class="nav-link {% if request.endpoint and 'history' in request.endpoint %}active{% endif %}">History</a></li>
+        {% endif %}
+
+        {% if current_user %}
+          <li><a href="{{ url_for('auth.logout') }}" class="nav-link">Sign Out</a></li>
+        {% else %}
+          <li><a href="{{ url_for('auth.login') }}" class="nav-link {% if request.endpoint and 'auth.login' in request.endpoint %}active{% endif %}">Sign In</a></li>
+          <li><a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Get Started</a></li>
+        {% endif %}
+
+        <!-- Dark mode toggle -->
+        <li>
+          <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+            <span id="themeIcon">🌙</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       Flash Messages (top-right overlay)
+       ============================================================ -->
+  <div class="flash-messages" id="flashMessages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}" onclick="this.remove()">
+            {% if category == 'success' %}✅
+            {% elif category == 'error' %}❌
+            {% elif category == 'warning' %}⚠️
+            {% else %}ℹ️{% endif %}
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- ============================================================
+       Main Content
+       ============================================================ -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ============================================================
+       Footer
+       ============================================================ -->
+  <footer class="footer">
+    <div class="container">
+      <p>
+        <strong>AI Resume Evaluator</strong> &mdash; Powered by SOHAIB KHATTAK (AI Engineer)
+      </p>
+      <p style="margin-top: var(--space-1); font-size: 0.75rem;">
+        &copy; 2026 &mdash; AI-powered resume feedback. Always review AI suggestions critically.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       Client-Side JavaScript
+       ============================================================ -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}Evaluation Results — AI Resume Evaluator{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+  {% set eval = evaluation %}
+  {% set score = eval.overall_score %}
+  {% set color = get_score_color(score) %}
+  {% set label = get_score_label(score) %}
+  {% set bg_class = 'bg-score-excellent' if score >= 81 else 'bg-score-good' if score >= 61 else 'bg-score-fair' if score >= 41 else 'bg-score-critical' %}
+  {% set border_class = 'border-score-excellent' if score >= 81 else 'border-score-good' if score >= 61 else 'border-score-fair' if score >= 41 else 'border-score-critical' %}
+
+  <!-- Header bar -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 style="margin-bottom: var(--space-1);">AI Resume Evaluation</h1>
+      <p style="color: var(--gray-500); font-size: 0.875rem;">
+        {{ eval.file_name }} · {{ eval.created_at[:10] }}
+        {% if eval.target_role %} · Role: {{ eval.target_role[:50] }}{% endif %}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{{ url_for('upload.index') }}" class="btn btn-primary">Evaluate Another</a>
+      <a href="{{ url_for('history.index') }}" class="btn btn-secondary">History</a>
+    </div>
+  </div>
+
+  <!-- Score + Summary row -->
+  <div class="grid grid-2 gap-4" style="grid-template-columns: 1fr 2fr;">
+    <!-- Score Gauge -->
+    <div class="card text-center">
+      <div class="score-gauge {{ bg_class }}" style="border: 4px solid {{ color }};">
+        <span class="score-gauge-value" style="color: {{ color }};">{{ score }}</span>
+        <span class="score-gauge-label" style="color: {{ color }};">{{ label }}</span>
+      </div>
+      <div style="margin-top: var(--space-3);">
+        <span style="font-size: 0.8125rem; color: var(--gray-500);">out of 100</span>
+      </div>
+
+      {% if eval.latency_ms %}
+      <div style="margin-top: var(--space-2); font-size: 0.75rem; color: var(--gray-400);">
+        Completed in {{ (eval.latency_ms / 1000)|round(1) }}s
+      </div>
+      {% endif %}
+
+      {% if eval.anonymous %}
+      <div style="margin-top: var(--space-2);">
+        <span class="badge badge-medium">Anonymous Evaluation</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Summary -->
+    <div class="card">
+      <h3 class="card-header">Summary</h3>
+      {% if eval.summary %}
+        <p>{{ eval.summary }}</p>
+      {% else %}
+        <p style="color: var(--gray-400);">No summary available.</p>
+      {% endif %}
+
+      <!-- Weights info -->
+      <div style="font-size: 0.8125rem; color: var(--gray-500); margin-top: var(--space-3);">
+        <strong>Scoring weights:</strong>
+        Experience 30% · Skills 25% · Achievements 15% · Education 10% · Format 10% · ATS 10%
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Breakdown -->
+  <div class="card mt-4">
+    <h3 class="card-header">Category Breakdown</h3>
+
+    {% for cat in eval.categories %}
+    {% set cat_color = get_score_color(cat.score) %}
+    <div class="category-row">
+      <div class="category-label">{{ cat.name }}</div>
+      <div class="category-bar-wrapper">
+        <div
+          class="category-bar-fill"
+          style="width: {{ cat.score }}%; background-color: {{ cat_color }};"
+        ></div>
+      </div>
+      <div class="category-score" style="color: {{ cat_color }};">{{ cat.score }}</div>
+      <div class="category-weight">
+        {% set weights = {'Experience Relevance': 30, 'Skills & Keywords': 25, 'Achievements & Impact': 15, 'Education & Credentials': 10, 'Format & Clarity': 10, 'ATS Compatibility': 10} %}
+        {{ weights.get(cat.name, '') }}
+      </div>
+    </div>
+
+    <!-- Reasoning (collapsible) -->
+    <details style="margin-left: 160px; margin-bottom: var(--space-2); font-size: 0.8125rem;">
+      <summary style="color: var(--gray-500); cursor: pointer;">Why this score?</summary>
+      <p style="color: var(--gray-600); margin-top: var(--space-1);">{{ cat.reasoning }}</p>
+      {% if cat.suggestions %}
+      <ul style="margin-top: var(--space-1); padding-left: var(--space-5);">
+        {% for suggestion in cat.suggestions %}
+        <li style="margin-bottom: var(--space-1);">{{ suggestion }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </details>
+    {% endfor %}
+
+    <!-- Overall score bar -->
+    <div class="category-row" style="border-top: 2px solid var(--gray-200); padding-top: var(--space-3); margin-top: var(--space-1);">
+      <div class="category-label" style="font-weight: 700;">Overall</div>
+      <div class="category-bar-wrapper">
+        <div
+          class="category-bar-fill"
+          style="width: {{ score }}%; background-color: {{ color }};"
+        ></div>
+      </div>
+      <div class="category-score" style="color: {{ color }}; font-weight: 700;">{{ score }}</div>
+      <div class="category-weight">100%</div>
+    </div>
+  </div>
+
+  <!-- Strengths -->
+  {% if eval.strengths %}
+  <div class="card mt-4">
+    <h3 class="card-header">✅ Strengths</h3>
+    <ul style="padding-left: var(--space-5);">
+      {% for strength in eval.strengths %}
+      <li style="margin-bottom: var(--space-2); color: var(--accent-700);">
+        {{ strength }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Improvements -->
+  {% if eval.improvements %}
+  <div class="card mt-4">
+    <h3 class="card-header">🔧 Areas for Improvement</h3>
+
+    {% for imp in eval.improvements %}
+    <div style="
+      padding: var(--space-3);
+      margin-bottom: var(--space-3);
+      border-left: 4px solid
+        {% if imp.priority == 'high' %}var(--error)
+        {% elif imp.priority == 'medium' %}var(--warning)
+        {% else %}var(--success){% endif %};
+      background-color: var(--gray-50);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    ">
+      <div class="flex items-center gap-2" style="margin-bottom: var(--space-1);">
+        <span class="badge badge-{{ imp.priority }}">{{ imp.priority }}</span>
+        <strong style="font-size: 0.9375rem;">{{ imp.issue }}</strong>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--gray-600); margin: 0;">
+        {{ imp.suggestion }}
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Bias Warnings -->
+  {% if eval.bias_warnings and eval.bias_warnings|length > 0 %}
+  <div class="card mt-4" style="border-left: 4px solid var(--warning);">
+    <h3 class="card-header">⚠️ Bias & Fairness Notes</h3>
+    <ul style="padding-left: var(--space-5);">
+      {% for warning in eval.bias_warnings %}
+      <li style="margin-bottom: var(--space-1); color: #92400e; font-size: 0.875rem;">
+        {{ warning }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- ATS Compatibility -->
+  {% if eval.ats_compatibility %}
+  <div class="card mt-4">
+    <h3 class="card-header">🤖 ATS Compatibility</h3>
+    {% set ats = eval.ats_compatibility %}
+    {% set ats_color = get_score_color(ats.score) %}
+
+    <div class="flex items-center gap-3 mb-3">
+      <span style="font-weight: 600;">Score:</span>
+      <span style="color: {{ ats_color }}; font-weight: 700; font-size: 1.25rem;">{{ ats.score }}/100</span>
+    </div>
+
+    {% if ats.keyword_density %}
+    <p style="font-size: 0.875rem;"><strong>Keyword Density:</strong> {{ ats.keyword_density }}</p>
+    {% endif %}
+
+    {% if ats.formatting_issues %}
+    <p style="font-size: 0.875rem; margin-top: var(--space-2);"><strong>Formatting Issues:</strong></p>
+    <ul style="padding-left: var(--space-5); font-size: 0.875rem;">
+      {% for issue in ats.formatting_issues %}
+      <li>{{ issue }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if ats.recommendations %}
+    <p style="font-size: 0.875rem; margin-top: var(--space-2);"><strong>Recommendations:</strong></p>
+    <ul style="padding-left: var(--space-5); font-size: 0.875rem;">
+      {% for rec in ats.recommendations %}
+      <li>{{ rec }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Disclaimer -->
+  <div class="card mt-4" style="background-color: var(--brand-50); border-color: var(--brand-200);">
+    <p style="font-size: 0.8125rem; color: var(--gray-500); margin: 0; text-align: center;">
+      <strong>🤖 AI-Generated Evaluation</strong> — This evaluation is generated by artificial intelligence
+      (DeepSeek v4) and is intended as guidance only. It should not be the sole factor in hiring decisions.
+      Always review suggestions critically and consult with human recruiters for final decisions.
+    </p>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex items-center justify-center gap-3 mt-6 mb-4">
+    <a href="{{ url_for('upload.index') }}" class="btn btn-primary btn-lg">
+      Evaluate Another Resume
+    </a>
+    <a href="{{ url_for('history.index') }}" class="btn btn-secondary btn-lg">
+      View History
+    </a>
+  </div>
+</div>
+{% endblock %}

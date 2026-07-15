@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}AI Resume Evaluator — Get Smart Resume Feedback{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container" style="max-width: 800px; text-align: center; padding-top: var(--space-12); padding-bottom: var(--space-8);">
+  <h1 style="font-size: clamp(2rem, 5vw, 3rem); margin-bottom: var(--space-4);">
+    AI-Powered Resume Evaluation
+  </h1>
+  <p style="font-size: 1.125rem; color: var(--gray-500); max-width: 600px; margin: 0 auto var(--space-6);">
+    Get instant, detailed feedback on your resume across 6 categories.
+    Understand your strengths, find improvement areas, and optimize for ATS systems.
+  </p>
+
+  {% if current_user %}
+    <a href="{{ url_for('upload.index') }}" class="btn btn-primary btn-lg">
+      Evaluate Your Resume →
+    </a>
+    <a href="{{ url_for('history.index') }}" class="btn btn-secondary btn-lg" style="margin-left: var(--space-2);">
+      View History
+    </a>
+  {% else %}
+    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg">
+      Get Started Free
+    </a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg" style="margin-left: var(--space-2);">
+      Sign In
+    </a>
+  {% endif %}
+</div>
+
+<!-- Feature Cards -->
+<div class="container" style="max-width: 1000px;">
+  <div class="grid grid-3 gap-6">
+    <div class="card text-center">
+      <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">📊</div>
+      <h3>6-Category Scoring</h3>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Experience, Skills, Achievements, Education, Format, and ATS compatibility — each scored 0-100.
+      </p>
+    </div>
+
+    <div class="card text-center">
+      <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">🎯</div>
+      <h3>Role-Specific Feedback</h3>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Provide a target job description and get tailored evaluation matching that specific role.
+      </p>
+    </div>
+
+    <div class="card text-center">
+      <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">🔧</div>
+      <h3>Actionable Improvements</h3>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Prioritized suggestions with concrete before/after examples to strengthen your resume.
+      </p>
+    </div>
+
+    <div class="card text-center">
+      <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">🤖</div>
+      <h3>ATS Optimization</h3>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Check how well your resume works with Applicant Tracking Systems and get parsing tips.
+      </p>
+    </div>
+
+    <div class="card text-center">
+      <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">🛡️</div>
+      <h3>Bias Detection</h3>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Our AI flags potential bias in evaluations and masks your PII for fair, private analysis.
+      </p>
+    </div>
+
+    <div class="card text-center">
+      <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">🔒</div>
+      <h3>Privacy First</h3>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Automated PII stripping, optional anonymous evaluation, and automatic data cleanup after 30 days.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- How it Works -->
+<div class="container" style="max-width: 800px; margin-top: var(--space-12);">
+  <h2 class="text-center" style="margin-bottom: var(--space-8);">How It Works</h2>
+
+  <div class="grid grid-3 gap-4 text-center">
+    <div>
+      <div style="
+        width: 48px; height: 48px;
+        background-color: var(--brand-100);
+        color: var(--brand-600);
+        border-radius: var(--radius-full);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1.25rem;
+        margin: 0 auto var(--space-3);
+      ">1</div>
+      <h4>Upload Resume</h4>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        Drag and drop your PDF, DOCX, or TXT file. Optionally add a target role.
+      </p>
+    </div>
+
+    <div>
+      <div style="
+        width: 48px; height: 48px;
+        background-color: var(--brand-100);
+        color: var(--brand-600);
+        border-radius: var(--radius-full);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1.25rem;
+        margin: 0 auto var(--space-3);
+      ">2</div>
+      <h4>AI Analysis</h4>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        DeepSeek v4 evaluates your resume across 6 weighted categories with detailed reasoning.
+      </p>
+    </div>
+
+    <div>
+      <div style="
+        width: 48px; height: 48px;
+        background-color: var(--brand-100);
+        color: var(--brand-600);
+        border-radius: var(--radius-full);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1.25rem;
+        margin: 0 auto var(--space-3);
+      ">3</div>
+      <h4>Get Results</h4>
+      <p style="font-size: 0.875rem; color: var(--gray-500);">
+        View your score breakdown, strengths, prioritized improvements, and ATS insights.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- CTA Footer -->
+<div class="container text-center" style="max-width: 600px; margin-top: var(--space-12); margin-bottom: var(--space-8);">
+  <h2>Ready to improve your resume?</h2>
+  <p style="color: var(--gray-500); margin-bottom: var(--space-4);">
+    Free tier includes 10 evaluations per day. No credit card required.
+  </p>
+  {% if current_user %}
+    <a href="{{ url_for('upload.index') }}" class="btn btn-primary btn-lg">Start Evaluation</a>
+  {% else %}
+    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg">Create Free Account</a>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Evaluation History — AI Resume Evaluator{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 style="margin-bottom: var(--space-1);">Evaluation History</h1>
+      <p style="color: var(--gray-500); font-size: 0.875rem;">
+        {{ total_evaluations }} evaluation{% if total_evaluations != 1 %}s{% endif %} total
+        {% if average_score %} · Average score: {{ average_score }}/100{% endif %}
+      </p>
+    </div>
+    <a href="{{ url_for('upload.index') }}" class="btn btn-primary">New Evaluation</a>
+  </div>
+
+  {% if evaluations %}
+    <div class="card" style="padding: 0; overflow: hidden;">
+      {% for eval in evaluations %}
+      <a
+        href="{{ url_for('results.view', eval_id=eval.id) }}"
+        style="
+          display: block;
+          padding: var(--space-4) var(--space-6);
+          border-bottom: 1px solid var(--gray-200);
+          text-decoration: none !important;
+          transition: background-color var(--transition-fast);
+        "
+        class="eval-row"
+        onmouseover="this.style.backgroundColor='var(--gray-50)'"
+        onmouseout="this.style.backgroundColor=''"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <strong style="color: var(--gray-800); font-size: 0.9375rem;">
+              {{ eval.file_name }}
+            </strong>
+            <div style="font-size: 0.8125rem; color: var(--gray-500); margin-top: var(--space-1);">
+              {{ eval.created_at[:10] }}
+              {% if eval.target_role %}
+              · {{ eval.target_role[:60] }}{% if eval.target_role|length > 60 %}…{% endif %}
+              {% endif %}
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            {% set s = eval.overall_score %}
+            {% set sc = '#14b8a6' if s >= 81 else '#3b82f6' if s >= 61 else '#f59e0b' if s >= 41 else '#ef4444' %}
+            <span style="
+              font-size: 1.25rem;
+              font-weight: 700;
+              color: {{ sc }};
+            ">{{ s }}/100</span>
+
+            <form
+              method="POST"
+              action="{{ url_for('history.delete', eval_id=eval.id) }}"
+              onsubmit="return confirm('Delete this evaluation?');"
+              style="display: inline;"
+            >
+              <button
+                type="submit"
+                class="btn btn-sm btn-secondary"
+                style="color: var(--error); border-color: transparent;"
+                title="Delete"
+              >✕</button>
+            </form>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if show_all and total_pages > 1 %}
+    <div class="flex items-center justify-center gap-3 mt-4">
+      {% if page > 1 %}
+      <a href="{{ url_for('history.all_history', page=page-1) }}" class="btn btn-secondary btn-sm">
+        ← Previous
+      </a>
+      {% endif %}
+      <span style="font-size: 0.875rem; color: var(--gray-500);">
+        Page {{ page }} of {{ total_pages }}
+      </span>
+      {% if page < total_pages %}
+      <a href="{{ url_for('history.all_history', page=page+1) }}" class="btn btn-secondary btn-sm">
+        Next →
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if not show_all and total_evaluations > 5 %}
+    <div class="text-center mt-4">
+      <a href="{{ url_for('history.all_history') }}" class="btn btn-secondary">
+        View All Evaluations ({{ total_evaluations }} total)
+      </a>
+    </div>
+    {% endif %}
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="card text-center" style="padding: var(--space-12);">
+    <div style="font-size: 3rem; margin-bottom: var(--space-4);">📋</div>
+    <h3>No evaluations yet</h3>
+    <p style="color: var(--gray-500); margin-bottom: var(--space-4);">
+      Upload your first resume to get AI-powered feedback.
+    </p>
+    <a href="{{ url_for('upload.index') }}" class="btn btn-primary btn-lg">
+      Evaluate Your Resume
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .eval-row:last-child {
+    border-bottom: none !important;
+  }
+  [data-theme="dark"] .eval-row:hover {
+    background-color: var(--gray-200) !important;
+  }
+</style>
+{% endblock %}
