@@ -2,7 +2,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState, useCallback } from 'react';
 import { getUserData } from '@/lib/firebase/firestore';
-import { getStreak, buildProgressData, resetAllProgress } from '@/lib/storage';
+import { getStreak, buildProgressData, resetAllProgress, getQuizResults } from '@/lib/storage';
 import { defaultTopics } from '@/lib/lessons/lessons-data';
 
 interface UserData {
@@ -19,7 +19,11 @@ const tips = [
 ];
 
 const weakAreaColors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-blue-400', 'bg-green-400'];
-const weakAreaWidths = [80, 65, 50];
+
+// Map topic names → topic ids so quiz results can be looked up for weak areas
+const lessonTopicNames: Record<string, string> = Object.fromEntries(
+  defaultTopics.map((t) => [t.title, t.id])
+);
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -147,20 +151,34 @@ export default function DashboardPage() {
           <h3 className="font-semibold text-gray-800 dark:text-white mb-4">Weak Areas Breakdown</h3>
           {data?.weakAreas && data.weakAreas.length > 0 ? (
             <div className="space-y-4">
-              {data.weakAreas.map((area, i) => (
-                <div key={area}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-700 dark:text-gray-200 font-medium">{area}</span>
-                    <span className="text-gray-400 dark:text-gray-500">{weakAreaWidths[i]}%</span>
+              {data.weakAreas.map((area, i) => {
+                // Derive bar width from the actual quiz score (if one exists),
+                // otherwise use a graded fallback based on index.
+                const topicId = (Object.keys(lessonTopicNames) as string[]).find(
+                  (key) => lessonTopicNames[key] === area
+                );
+                const quiz = topicId ? getQuizResults().find((r) => r.topicId === topicId) : undefined;
+                const scorePct = quiz ? Math.round((quiz.score / quiz.total) * 100) : undefined;
+                const fallbackWidths = [85, 70, 55, 45, 35];
+                // Lower quiz score → weaker → wider bar (max 95 so the bar never overflows)
+                const width = scorePct !== undefined ? Math.max(15, 95 - scorePct) : fallbackWidths[i] || 40;
+                return (
+                  <div key={area}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-700 dark:text-gray-200 font-medium truncate">{area}</span>
+                      <span className="text-gray-400 dark:text-gray-500 shrink-0 ml-2">
+                        {scorePct !== undefined ? `${scorePct}% score` : `${width}%`}
+                      </span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${weakAreaColors[i % weakAreaColors.length]} rounded-full transition-all duration-500`}
+                        style={{ width: `${width}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${weakAreaColors[i]} rounded-full transition-all duration-500`}
-                      style={{ width: `${weakAreaWidths[i]}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-gray-400 dark:text-gray-500 text-sm">No weak areas identified.</p>
@@ -206,15 +224,30 @@ export default function DashboardPage() {
                 </div>
               </div>
             ))}
-            <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <span className="w-8 h-8 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center text-sm">
-                🎯
-              </span>
-              <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">New weak area identified: Docker & Containers</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Based on quiz results</p>
+            {data?.weakAreas && data.weakAreas.length > 0 && (
+              <div className="flex items-start gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <span className="w-8 h-8 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center text-sm">
+                  🎯
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    Focus on: {data.weakAreas[0]}
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Weakest area to improve</p>
+                </div>
               </div>
-            </div>
+            )}
+            {completedEntries.length === 0 && (!data?.weakAreas || data.weakAreas.length === 0) && (
+              <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <span className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center text-sm">
+                  👋
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200">No activity yet</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Complete your first lesson to get started</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

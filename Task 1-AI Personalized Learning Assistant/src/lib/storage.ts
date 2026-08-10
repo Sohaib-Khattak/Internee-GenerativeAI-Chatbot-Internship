@@ -36,7 +36,6 @@ export function getCompletedLessons(): CompletedLesson[] {
 }
 
 export function addCompletedLesson(id: string, title: string): CompletedLesson[] {
-  clearReset();
   const lessons = getCompletedLessons();
   if (lessons.some((l) => l.id === id)) return lessons;
   const newLesson: CompletedLesson = {
@@ -133,17 +132,7 @@ export function resetAllProgress() {
   localStorage.removeItem(WEAK_KEY);
   localStorage.removeItem(STREAK_KEY);
   localStorage.removeItem('internee_last_active');
-  localStorage.setItem('internee_reset', 'true');
   window.dispatchEvent(new CustomEvent('lesson-completed'));
-}
-
-function isReset(): boolean {
-  return getItem<boolean>('internee_reset', false);
-}
-
-function clearReset() {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('internee_reset');
 }
 
 export function getQuizScore(topicId: string): { score: number; total: number } | null {
@@ -155,21 +144,9 @@ export function getQuizScore(topicId: string): { score: number; total: number } 
 export function buildProgressData() {
   const stored = getCompletedLessons();
   const base: Record<string, { completedAt: string; title: string }> = {};
-  if (!isReset() && stored.length === 0) {
-    const now = new Date();
-    const day = 86400000;
-    base['js-basics'] = { completedAt: new Date(now.getTime() - 6 * day).toISOString(), title: 'JavaScript Basics' };
-    base['git-workflow'] = { completedAt: new Date(now.getTime() - 5 * day).toISOString(), title: 'Git & Collaboration' };
-    base['html-css'] = { completedAt: new Date(now.getTime() - 4 * day).toISOString(), title: 'HTML & CSS Essentials' };
-    base['react-fundamentals'] = { completedAt: new Date(now.getTime() - 2 * day).toISOString(), title: 'React Fundamentals' };
-    base['sql-basics'] = { completedAt: new Date(now.getTime() - 1 * day).toISOString(), title: 'SQL & Basics' };
-  }
   for (const lesson of stored) {
-    if (!base[lesson.id]) {
-      base[lesson.id] = { completedAt: lesson.completedAt, title: lesson.title };
-    }
+    base[lesson.id] = { completedAt: lesson.completedAt, title: lesson.title };
   }
   const storedWeak = getWeakAreas();
-  const demoWeak = isReset() || stored.length > 0 ? [] : ['Node.js API Design', 'TypeScript Deep Dive', 'Docker & Containers'];
-  return { progress: base, weakAreas: storedWeak.length > 0 ? storedWeak : demoWeak };
+  return { progress: base, weakAreas: storedWeak };
 }

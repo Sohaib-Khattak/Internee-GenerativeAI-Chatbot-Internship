@@ -21,6 +21,7 @@ build/
 *.log
 
 # local env files
+.env
 .env*.local
 
 # npm logs

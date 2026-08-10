@@ -7,3 +7,103 @@
     @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
   }
 }
+
+/* ============================================================================
+   Lesson content typography — brand-colored "documentation" look
+   Used with @tailwindcss/typography (prose classes) in lesson pages.
+   ============================================================================ */
+
+@layer components {
+  /* Brand-colored prose headings across all levels */
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    @apply text-brand-700 dark:text-brand-300 font-bold tracking-tight;
+  }
+
+  .prose h2 {
+    @apply mt-10 mb-4 text-2xl border-b-2 border-brand-200 dark:border-brand-800 pb-2;
+  }
+
+  .prose h3 {
+    @apply mt-8 mb-3 text-xl;
+  }
+
+  .prose h4 {
+    @apply mt-6 mb-2 text-base;
+  }
+
+  /* Brand accent for key text elements */
+  .prose strong {
+    @apply text-brand-600 dark:text-brand-300 font-semibold;
+  }
+
+  .prose a {
+    @apply text-brand-600 dark:text-brand-400 font-medium no-underline hover:underline;
+  }
+
+  /* Callout / quote styling */
+  .prose blockquote {
+    @apply border-l-4 border-brand-400 dark:border-brand-500 bg-brand-50 dark:bg-brand-900/20 rounded-r-xl px-5 py-3 text-gray-700 dark:text-gray-300 not-italic;
+  }
+
+  /* Inline code */
+  .prose code {
+    @apply bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-200 font-medium rounded px-1.5 py-0.5 text-[0.85em] before:content-none after:content-none;
+  }
+
+  /* Code blocks — dark, documentation-style theme */
+  .prose pre {
+    @apply bg-gray-900 dark:bg-gray-950 text-gray-100 rounded-xl border border-gray-800 dark:border-gray-700 shadow-sm;
+  }
+
+  .prose pre code {
+    @apply bg-transparent text-gray-100 dark:text-gray-100 p-0 text-[0.875rem] leading-relaxed;
+  }
+
+  /* Tables */
+  .prose table {
+    @apply text-sm rounded-lg overflow-hidden border-collapse;
+  }
+
+  .prose thead th,
+  .prose tbody th {
+    @apply bg-brand-600 dark:bg-brand-700 text-white dark:text-white font-semibold px-4 py-2.5 text-left;
+  }
+
+  .prose tbody td {
+    @apply px-4 py-2.5 text-gray-700 dark:text-gray-300;
+  }
+
+  .prose tbody tr:nth-child(even) {
+    @apply bg-brand-50/60 dark:bg-brand-900/20;
+  }
+
+  .prose tbody tr:nth-child(odd) {
+    @apply bg-transparent dark:bg-transparent;
+  }
+
+  /* Lists — brand accent bullets/numbers */
+  .prose ul li::marker {
+    @apply text-brand-500 dark:text-brand-400;
+  }
+
+  .prose ol li::marker {
+    @apply text-brand-500 dark:text-brand-400 font-semibold;
+  }
+
+  .prose li {
+    @apply my-1.5;
+  }
+
+  /* Horizontal rules */
+  .prose hr {
+    @apply border-brand-200 dark:border-brand-800 my-10;
+  }
+
+  /* Task/check list markers */
+  .prose input[type='checkbox'] {
+    @apply accent-brand-600;
+  }
+}

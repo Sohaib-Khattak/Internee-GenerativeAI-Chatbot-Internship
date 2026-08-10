@@ -2,13 +2,15 @@
 import { useAuth } from '@/context/AuthContext';
 import { getUserData, updateUserProgress } from '@/lib/firebase/firestore';
 import { useEffect, useState, useCallback } from 'react';
-import { buildProgressData } from '@/lib/storage';
+import { buildProgressData, getQuizResults } from '@/lib/storage';
 import { defaultTopics } from '@/lib/lessons/lessons-data';
 
 export default function ProgressPage() {
   const { user } = useAuth();
   const [data, setData] = useState(buildProgressData);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [recommendations, setRecommendations] = useState<string[]>([]);
 
   const syncStorage = useCallback(() => {
     setData(buildProgressData());
@@ -25,6 +27,7 @@ export default function ProgressPage() {
   async function runAnalysis() {
     if (!user || !data?.progress) return;
     setAnalyzing(true);
+    setAnalysisError(null);
 
     try {
       const res = await fetch('/api/progress/analyze', {
@@ -32,19 +35,25 @@ export default function ProgressPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           completedLessons: data.progress,
-          quizResults: [],
+          quizResults: getQuizResults(),
         }),
       });
 
       const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Analysis failed');
+
       if (result.weakAreas) {
         await updateUserProgress(user.uid, { weakAreas: result.weakAreas });
         setData((prev) =>
           prev ? { ...prev, weakAreas: result.weakAreas } : prev
         );
       }
+      if (Array.isArray(result.recommendations)) {
+        setRecommendations(result.recommendations);
+      }
     } catch (e) {
-      console.error('Analysis failed:', e);
+      const msg = e instanceof Error ? e.message : 'Analysis failed';
+      setAnalysisError(msg);
     } finally {
       setAnalyzing(false);
     }
@@ -63,6 +72,14 @@ export default function ProgressPage() {
 
   const weekLessons = completedLessons;
 
+  // Local-date key (YYYY-MM-DD) that respects the user's timezone, unlike toISOString() (UTC)
+  function localDateKey(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   const weeklyData = (() => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const today = new Date();
@@ -72,18 +89,23 @@ export default function ProgressPage() {
     monday.setDate(today.getDate() + mondayOffset);
     monday.setHours(0, 0, 0, 0);
 
-    return days.map((day, i) => {
+    const weekDates = days.map((_, i) => {
       const date = new Date(monday);
       date.setDate(monday.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
-      const count = weekLessons.filter(([, l]) => l.completedAt.startsWith(dateStr)).length;
-      const maxVal = Math.max(1, ...days.map((_, j) => {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + j);
-        return weekLessons.filter(([, l]) => l.completedAt.startsWith(d.toISOString().split('T')[0])).length;
-      }));
-      return { day, count, maxVal: Math.max(maxVal, 1), date: dateStr };
+      return localDateKey(date);
     });
+
+    const counts = weekDates.map((dateStr) =>
+      weekLessons.filter(([, l]) => l.completedAt.startsWith(dateStr)).length
+    );
+    const maxVal = Math.max(1, ...counts);
+
+    return days.map((day, i) => ({
+      day,
+      count: counts[i],
+      maxVal,
+      date: weekDates[i],
+    }));
   })();
 
   const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -147,6 +169,34 @@ export default function ProgressPage() {
           </button>
         </div>
       </div>
+
+      {analysisError && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-sm text-red-600 dark:text-red-400 flex items-start gap-2">
+          <span className="text-base">⚠️</span>
+          <div>
+            <strong>Analysis failed:</strong> {analysisError}
+            <p className="text-xs mt-1">Check that the AI service is available and try again.</p>
+          </div>
+        </div>
+      )}
+
+      {recommendations.length > 0 && (
+        <div className="bg-gradient-to-br from-brand-50 to-accent-50 dark:from-brand-900/20 dark:to-accent-900/20 p-6 rounded-xl border border-brand-200 dark:border-brand-800 shadow-sm">
+          <h3 className="font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <span>💡</span> AI Recommendations
+          </h3>
+          <ul className="space-y-2">
+            {recommendations.map((rec, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
+                <span className="w-5 h-5 bg-brand-100 dark:bg-brand-900/50 rounded-full flex items-center justify-center text-[10px] font-bold text-brand-700 dark:text-brand-300 shrink-0 mt-0.5">
+                  {i + 1}
+                </span>
+                {rec}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
@@ -219,18 +269,25 @@ export default function ProgressPage() {
           <div className="space-y-3">
             {data.weakAreas.map((area, i) => {
               const idx = i % 5;
-              const widths = [100, 80, 65, 50, 35];
               const colors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-blue-400', 'bg-green-400'];
+              // Derive the bar from the actual quiz score for this topic when available
+              const topicId = defaultTopics.find((t) => t.title === area)?.id;
+              const quiz = topicId ? getQuizResults().find((r) => r.topicId === topicId) : undefined;
+              const scorePct = quiz ? Math.round((quiz.score / quiz.total) * 100) : undefined;
+              // Lower score → weaker → wider bar (95 max so the bar never overflows)
+              const width = scorePct !== undefined ? Math.max(15, 95 - scorePct) : [100, 80, 65, 50, 35][idx] || 40;
               return (
                 <div key={area} className="flex items-center gap-3">
                   <span className="w-28 text-sm text-gray-600 dark:text-gray-300 font-medium truncate">{area}</span>
                   <div className="flex-1 h-5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${colors[idx]} rounded-full transition-all duration-500`}
-                      style={{ width: `${widths[idx]}%` }}
+                      style={{ width: `${width}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 w-6 text-right">{widths[idx]}%</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 w-8 text-right shrink-0">
+                    {scorePct !== undefined ? `${scorePct}%` : `${width}%`}
+                  </span>
                 </div>
               );
             })}
