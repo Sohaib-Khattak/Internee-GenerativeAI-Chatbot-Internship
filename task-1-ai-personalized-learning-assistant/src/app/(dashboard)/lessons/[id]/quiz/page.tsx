@@ -1,6 +1,6 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { quizData, getTopicName } from '@/lib/quiz-data';
 import { saveQuizResult, getQuizScore } from '@/lib/storage';
 import { defaultTopics } from '@/lib/lessons/lessons-data';
@@ -15,7 +15,7 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<number[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
 
-  const questions = quizData[id] || [];
+  const questions = useMemo(() => quizData[id] || [], [id]);
   const topicName = getTopicName(id);
   const topic = defaultTopics.find((t) => t.id === id);
   const existingScore = getQuizScore(id);
