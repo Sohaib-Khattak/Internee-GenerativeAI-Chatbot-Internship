@@ -11,10 +11,10 @@ This repository contains all tasks completed during the Generative AI Chatbot In
 ```
 Internee-GenerativeAI-Chatbot-Internship/
 ├── README.md                          # Repository overview
-├── Task 1-AI Personalized Learning    # AI-powered personalized learning platform
-│   Assistant/                         # (Next.js + Firebase + DeepSeek v4)
+├── task-1-ai-personalized-learning-assistant/  # AI-powered personalized learning platform
+│                                              # (Next.js + Firebase + DeepSeek v4)
 │
-└── Task 2-AI Resume Evaluator/        # AI-driven resume evaluation system
+└── task-2-ai-resume-evaluator/        # AI-driven resume evaluation system
     ├── CLAUDE.md                      # Project constitution
     ├── app.py                         # Flask application entry point
     ├── src/                           # Application source code
@@ -42,14 +42,14 @@ Internee-GenerativeAI-Chatbot-Internship/
 
 ### Task 2 — AI Resume Evaluator
 ```bash
-cd "Task 2-AI Resume Evaluator"
+cd task-2-ai-resume-evaluator
 pip install -r requirements.txt
 python app.py
 ```
 
 ### Task 1 — AI Personalized Learning Assistant
 ```bash
-cd "Task 1-AI Personalized Learning Assistant"
+cd task-1-ai-personalized-learning-assistant
 npm install
 npm run dev
 ```
