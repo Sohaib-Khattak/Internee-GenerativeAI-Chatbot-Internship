@@ -2,6 +2,7 @@ const LESSONS_KEY = 'internee_completed_lessons';
 const QUIZ_KEY = 'internee_quiz_results';
 const WEAK_KEY = 'internee_weak_areas';
 const STREAK_KEY = 'internee_streak';
+const CHATS_KEY = 'internee_chat_history';
 
 export interface CompletedLesson {
   id: string;
@@ -14,6 +15,19 @@ export interface QuizResult {
   score: number;
   total: number;
   date: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatConversation {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 function getItem<T>(key: string, fallback: T): T {
@@ -149,4 +163,80 @@ export function buildProgressData() {
   }
   const storedWeak = getWeakAreas();
   return { progress: base, weakAreas: storedWeak };
+}
+
+export const CHAT_HISTORY_EVENT = 'chat-history-updated';
+
+function generateChatId(): string {
+  return `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function notifyChatHistory() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(CHAT_HISTORY_EVENT));
+  }
+}
+
+/** All saved tutor conversations, most recent first. */
+export function getChatHistory(): ChatConversation[] {
+  const chats = getItem<ChatConversation[]>(CHATS_KEY, []);
+  return chats.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+/** Derive a short display title from the first user message. */
+export function chatTitle(messages: ChatMessage[]): string {
+  const first = messages.find((m) => m.role === 'user')?.content;
+  if (!first) return 'New chat';
+  return first.length > 32 ? first.slice(0, 32).trimEnd() + '…' : first;
+}
+
+/** Create a new conversation and persist it. */
+export function saveNewChat(messages: ChatMessage[]): string {
+  const chats = getItem<ChatConversation[]>(CHATS_KEY, []);
+  const now = new Date().toISOString();
+  const chat: ChatConversation = {
+    id: generateChatId(),
+    title: chatTitle(messages),
+    messages,
+    createdAt: now,
+    updatedAt: now,
+  };
+  chats.push(chat);
+  setItem(CHATS_KEY, chats);
+  notifyChatHistory();
+  return chat.id;
+}
+
+/** Persist a conversation by id. */
+export function saveChat(id: string, messages: ChatMessage[]): void {
+  if (!id) return;
+  const chats = getItem<ChatConversation[]>(CHATS_KEY, []);
+  const idx = chats.findIndex((c) => c.id === id);
+  if (idx === -1) return;
+  chats[idx] = {
+    ...chats[idx],
+    title: chatTitle(messages),
+    messages,
+    updatedAt: new Date().toISOString(),
+  };
+  setItem(CHATS_KEY, chats);
+  notifyChatHistory();
+}
+
+/** Look up a conversation by id. */
+export function getChatById(id: string): ChatConversation | null {
+  return getItem<ChatConversation[]>(CHATS_KEY, []).find((c) => c.id === id) ?? null;
+}
+
+/** Delete a conversation by id. */
+export function deleteChat(id: string): void {
+  const chats = getItem<ChatConversation[]>(CHATS_KEY, []).filter((c) => c.id !== id);
+  setItem(CHATS_KEY, chats);
+  notifyChatHistory();
+}
+
+/** Last saved conversation's id (recently loaded on the tutor page). */
+export function getLastChatId(): string | null {
+  const chats = getChatHistory();
+  return chats.length ? chats[0].id : null;
 }

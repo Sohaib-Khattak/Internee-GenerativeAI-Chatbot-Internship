@@ -1,8 +1,15 @@
 'use client';
 import { useState, FormEvent, useRef, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getUserData } from '@/lib/firebase/firestore';
 import ChatMessage from '@/components/ChatMessage';
+import {
+  saveNewChat,
+  saveChat,
+  getChatById,
+  getLastChatId,
+} from '@/lib/storage';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -21,12 +28,35 @@ const demoMessages: Message[] = [
 
 export default function TutorPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [weakAreas, setWeakAreas] = useState<string[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const chatIdRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Load a past conversation when visiting /tutor?chat=<id> (or the last one).
+  useEffect(() => {
+    const param = searchParams.get('chat');
+    const loaded = param
+      ? getChatById(param)
+      : getChatById(getLastChatId() ?? '');
+
+    if (loaded && loaded.messages.length > 0) {
+      chatIdRef.current = loaded.id;
+      setChatId(loaded.id);
+      setMessages(loaded.messages as Message[]);
+      setHasStarted(true);
+    } else {
+      chatIdRef.current = null;
+      setChatId(null);
+      setMessages([]);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user) return;
@@ -39,6 +69,27 @@ export default function TutorPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Persist any conversation change to localStorage.
+  useEffect(() => {
+    if (!hasStarted) return;
+    if (messages.length === 0) return;
+    const id = chatIdRef.current;
+    if (!id) {
+      chatIdRef.current = saveNewChat(messages);
+      setChatId(chatIdRef.current);
+    } else {
+      saveChat(id, messages);
+    }
+  }, [hasStarted, messages]);
+
+  function newChat() {
+    chatIdRef.current = null;
+    setChatId(null);
+    setMessages([]);
+    setHasStarted(false);
+    router.push('/tutor');
+  }
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
@@ -85,6 +136,14 @@ export default function TutorPage() {
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white">AI Chat</h2>
         <span className="px-2 py-0.5 text-xs bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 rounded-full font-medium">Tutor</span>
+        <div className="ml-auto">
+          <button
+            onClick={newChat}
+            className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-lg hover:border-brand-300 hover:text-brand-700 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors font-medium flex items-center gap-1.5"
+          >
+            <span className="text-base leading-none">+</span> New Chat
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6">
@@ -109,7 +168,11 @@ export default function TutorPage() {
             </div>
 
             <button
-              onClick={() => { setMessages(demoMessages); setHasStarted(true); }}
+              onClick={() => {
+                setMessages(demoMessages);
+                chatIdRef.current = null;
+                setHasStarted(true);
+              }}
               className="mt-6 px-5 py-2.5 text-sm bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 rounded-xl hover:bg-brand-100 dark:hover:bg-brand-900/50 transition-colors font-medium"
             >
               Try Demo Chat
