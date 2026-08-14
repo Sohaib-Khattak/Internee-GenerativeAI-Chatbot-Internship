@@ -6,16 +6,36 @@ Uses python-dotenv to load .env file in development.
 """
 
 import os
+import secrets
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+class _Secret:
+    """
+    Resolves the SECRET_KEY with a secure default.
+
+    - Uses SECRET_KEY from the environment when set (recommended).
+    - Generates a random, instance-specific key at startup when the env var
+      is missing or still the public placeholder. Session cookies signed with
+      a runtime-generated key reset on every process restart, which is
+      acceptable for fallback but not a substitute for setting SECRET_KEY.
+    """
+
+    @staticmethod
+    def resolve() -> str:
+        key = os.getenv("SECRET_KEY", "")
+        if key and key != "change-this-to-a-random-secret-key":
+            return key
+        return secrets.token_hex(32)
 
 
 class Config:
     """Application configuration loaded from environment variables."""
 
     # Flask
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "change-this-to-a-random-secret-key")
+    SECRET_KEY: str = _Secret.resolve()
     FLASK_ENV: str = os.getenv("FLASK_ENV", "development")
 
     # AI Provider (DeepSeek v4 free via OpenCode Zen API)

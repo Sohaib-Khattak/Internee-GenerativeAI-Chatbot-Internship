@@ -1,0 +1,29 @@
+# Render Blueprint — AI Resume Evaluator
+# One-click deployment: connect the repo in Render, then "Apply Blueprint".
+# All services, env vars, and the start command below are pre-configured.
+
+services:
+  - type: web
+    name: ai-resume-evaluator
+    runtime: python
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: FLASK_APP
+        value: app.py
+      - key: FLASK_ENV
+        value: production
+      - key: ZEN_BASE_URL
+        value: https://opencode.ai/zen/v1
+      - key: ZEN_MODEL
+        value: deepseek-v4-flash-free
+      - key: MAX_FILE_SIZE_MB
+        value: "5"
+      - key: EVALUATION_TTL_DAYS
+        value: "30"
+      # Set these securely in the Render dashboard (never commit secrets):
+      - key: SECRET_KEY
+        sync: false
+      - key: ZEN_API_KEY
+        sync: false
