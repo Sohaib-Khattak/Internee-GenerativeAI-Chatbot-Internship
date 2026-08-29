@@ -109,14 +109,20 @@ def process():
 
     text = mask_all(text, anonymous=anonymous)
 
-    # Store in session for evaluation
-    session["resume_text"] = text
-    session["resume_filename"] = validation["filename"]
-    session["resume_pages"] = result.get("pages", 1)
-    session["resume_format"] = result.get("format", "")
-    session["resume_truncated"] = result.get("truncated", False)
-    session["anonymous_eval"] = anonymous
-    session["target_role"] = target_role
+    # Store pending evaluation server-side (resume text is too large for
+    # Flask's cookie-based session) and keep only a small token in session.
+    from src.utils.pending_store import save_pending
+
+    payload = {
+        "resume_text": text,
+        "resume_filename": validation["filename"],
+        "resume_pages": result.get("pages", 1),
+        "resume_format": result.get("format", ""),
+        "resume_truncated": result.get("truncated", False),
+        "anonymous_eval": anonymous,
+        "target_role": target_role,
+    }
+    session["pending_token"] = save_pending(payload)
 
     # Text preview
     preview = get_text_preview(text)

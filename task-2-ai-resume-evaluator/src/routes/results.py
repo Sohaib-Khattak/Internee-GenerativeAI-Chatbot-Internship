@@ -101,14 +101,22 @@ def evaluate():
         )
         return redirect(url_for("upload.index"))
 
-    # Get resume text from session
-    resume_text = session.get("resume_text", "")
-    if not resume_text:
+    # Get resume text from the server-side pending store (loaded via a
+    # small session token). Flask's cookie session can't hold the full text.
+    from src.utils.pending_store import load_pending
+
+    pending_token = session.get("pending_token", "")
+    pending = load_pending(pending_token) if pending_token else None
+
+    if not pending or not pending.get("resume_text"):
         flash("No resume text found. Please upload your resume first.", "error")
         return redirect(url_for("upload.index"))
 
-    target_role = session.get("target_role", "")
-    anonymous = session.get("anonymous_eval", False)
+    resume_text = pending["resume_text"]
+    filename = pending.get("resume_filename", "unknown")
+    file_format = pending.get("resume_format", "")
+    target_role = pending.get("target_role", "")
+    anonymous = pending.get("anonymous_eval", False)
 
     # Run evaluation
     result = evaluate_resume(
@@ -138,8 +146,8 @@ def evaluate():
     eval_dict = evaluation.model_dump()
     eval_dict["id"] = eval_id
     eval_dict["created_at"] = now
-    eval_dict["file_name"] = session.get("resume_filename", "unknown")
-    eval_dict["file_format"] = session.get("resume_format", "")
+    eval_dict["file_name"] = filename
+    eval_dict["file_format"] = file_format
     eval_dict["anonymous"] = anonymous
     eval_dict["target_role"] = target_role if target_role else None
     eval_dict["latency_ms"] = result.get("latency_ms", 0)
@@ -155,16 +163,16 @@ def evaluate():
     _update_user_evaluations(user_id, {
         "id": eval_id,
         "created_at": now,
-        "file_name": session.get("resume_filename", "unknown"),
+        "file_name": filename,
         "overall_score": evaluation.overall_score,
         "status": "completed",
     })
 
-    # Clear session data (keep auth)
-    for key in ["resume_text", "resume_filename", "resume_pages",
-                "resume_format", "resume_truncated", "anonymous_eval",
-                "target_role"]:
-        session.pop(key, None)
+    # Clear the pending server-side record and session token
+    from src.utils.pending_store import delete_pending
+
+    delete_pending(pending_token)
+    session.pop("pending_token", None)
 
     return redirect(url_for("results.view", eval_id=eval_id))
 
