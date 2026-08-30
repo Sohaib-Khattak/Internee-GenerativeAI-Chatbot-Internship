@@ -14,10 +14,10 @@ services:
         value: app.py
       - key: FLASK_ENV
         value: production
-      - key: ZEN_BASE_URL
-        value: https://opencode.ai/zen/v1
-      - key: ZEN_MODEL
-        value: deepseek-v4-flash-free
+      - key: GEMINI_BASE_URL
+        value: https://generativelanguage.googleapis.com/v1beta
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
       - key: MAX_FILE_SIZE_MB
         value: "5"
       - key: EVALUATION_TTL_DAYS
@@ -25,5 +25,5 @@ services:
       # Set these securely in the Render dashboard (never commit secrets):
       - key: SECRET_KEY
         sync: false
-      - key: ZEN_API_KEY
+      - key: GEMINI_API_KEY
         sync: false

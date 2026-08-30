@@ -267,19 +267,13 @@ gunicorn app:app --bind 0.0.0.0:10000 --workers 4 --timeout 120
 
 ```python
 # src/ai/client.py
-import os
-from openai import OpenAI
+from config import Config
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-ZEN_BASE_URL = "https://opencode.ai/zen/v1"
-ZEN_MODEL = "deepseek-v4-flash-free"
-
-client = OpenAI(
-    api_key=os.getenv("ZEN_API_KEY", ""),
-    base_url=ZEN_BASE_URL,
-)
+GEMINI_MODEL = Config.GEMINI_MODEL  # e.g. "gemini-3.5-flash"
 
 def get_model() -> str:
-    return ZEN_MODEL
+    return GEMINI_MODEL
 ```
 
 ```python
@@ -302,22 +296,17 @@ Return structured JSON matching the schema provided."""),
 
 ```python
 # src/ai/chains.py
-from langchain.chains import LLMChain
-from langchain_openai import ChatOpenAI
-from src.ai.client import get_model, ZEN_BASE_URL
+from langchain_google_genai import ChatGoogleGenerativeAI
+from config import Config
 
-def create_evaluation_chain() -> LLMChain:
-    llm = ChatOpenAI(
-        model=get_model(),
-        base_url=ZEN_BASE_URL,
+def create_evaluation_chain():
+    llm = ChatGoogleGenerativeAI(
+        model=Config.GEMINI_MODEL,
+        google_api_key=Config.GEMINI_API_KEY,
         temperature=0.3,
-        model_kwargs={"response_format": {"type": "json_object"}},
+        response_mime_type="application/json",
     )
-    return LLMChain(
-        llm=llm,
-        prompt=EVALUATION_PROMPT,
-        output_parser=EvaluationParser(),
-    )
+    return EVALUATION_PROMPT | llm | EvaluationParser()
 ```
 
 ### Structured Output with Pydantic
@@ -481,10 +470,10 @@ FLASK_APP=app.py
 FLASK_ENV=development
 SECRET_KEY=your-secret-key-here
 
-# AI Provider (DeepSeek v4 via OpenCode Zen API)
-ZEN_API_KEY=
-ZEN_BASE_URL=https://opencode.ai/zen/v1
-ZEN_MODEL=deepseek-v4-flash-free
+# AI Provider (Google Gemini — free tier via personal API key)
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.5-flash
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 
 # App Config
 MAX_FILE_SIZE_MB=5

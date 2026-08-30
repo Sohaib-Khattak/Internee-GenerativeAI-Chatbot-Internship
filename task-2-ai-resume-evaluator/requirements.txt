@@ -17,6 +17,7 @@ openai>=1.30.0
 langchain>=0.2.5
 langchain-openai>=0.1.9
 langchain-community>=0.2.5
+langchain-google-genai>=1.0.0
 
 # Document Parsing
 PyMuPDF>=1.24.0

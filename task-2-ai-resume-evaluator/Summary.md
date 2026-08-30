@@ -174,15 +174,15 @@ resume-evaluator/
 
 ## 🔧 LangChain Integration
 
-### AI Client (DeepSeek v4 via Zen API)
+### AI Client (Google Gemini — free tier via personal API key)
 ```python
-ZEN_BASE_URL = "https://opencode.ai/zen/v1"
-ZEN_MODEL = "deepseek-v4-flash-free"
+from config import Config
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-client = OpenAI(
-    api_key=os.getenv("ZEN_API_KEY", ""),
-    base_url=ZEN_BASE_URL,
-)
+GEMINI_MODEL = Config.GEMINI_MODEL  # e.g. "gemini-3.5-flash"
+
+def get_model() -> str:
+    return GEMINI_MODEL
 ```
 
 ### Prompt Pattern

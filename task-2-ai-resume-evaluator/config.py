@@ -38,12 +38,12 @@ class Config:
     SECRET_KEY: str = _Secret.resolve()
     FLASK_ENV: str = os.getenv("FLASK_ENV", "development")
 
-    # AI Provider (DeepSeek v4 free via OpenCode Zen API)
-    ZEN_API_KEY: str = os.getenv("ZEN_API_KEY", "")
-    ZEN_BASE_URL: str = os.getenv(
-        "ZEN_BASE_URL", "https://opencode.ai/zen/v1"
+    # AI Provider (Google Gemini — free tier via a personal API key)
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", os.getenv("ZEN_API_KEY", ""))
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    GEMINI_BASE_URL: str = os.getenv(
+        "GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"
     )
-    ZEN_MODEL: str = os.getenv("ZEN_MODEL", "deepseek-v4-flash-free")
 
     # App Limits
     MAX_FILE_SIZE_MB: int = int(os.getenv("MAX_FILE_SIZE_MB", "5"))

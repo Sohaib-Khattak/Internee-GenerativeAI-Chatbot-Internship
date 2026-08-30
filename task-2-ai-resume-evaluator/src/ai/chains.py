@@ -14,7 +14,7 @@ import time
 from typing import Any, Optional
 
 from langchain_core.runnables import RunnableSequence
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 from config import Config
 from src.ai.parsers import EvaluationParser
@@ -28,22 +28,21 @@ def get_evaluation_chain() -> RunnableSequence:
     """
     Create and return a LangChain evaluation chain using LCEL.
 
-    Chain: prompt template → DeepSeek v4 LLM → Pydantic output parser
+    Chain: prompt template → Gemini LLM → Pydantic output parser
 
-    Uses DeepSeek v4 via the OpenCode Zen API with JSON response format.
+    Uses Google Gemini with JSON response format (response_mime_type).
 
     Returns:
         RunnableSequence that accepts {"resume_text": str, "target_role": str}
         and returns a validated Evaluation object.
     """
-    llm = ChatOpenAI(
-        model=Config.ZEN_MODEL,
-        base_url=Config.ZEN_BASE_URL,
-        api_key=Config.ZEN_API_KEY,
+    llm = ChatGoogleGenerativeAI(
+        model=Config.GEMINI_MODEL,
+        google_api_key=Config.GEMINI_API_KEY,
         temperature=0.3,
-        model_kwargs={"response_format": {"type": "json_object"}},
         max_tokens=4096,
-        request_timeout=60,
+        response_mime_type="application/json",
+        timeout=60,
     )
 
     parser = EvaluationParser()

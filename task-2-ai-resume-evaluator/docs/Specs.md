@@ -351,19 +351,12 @@ gunicorn app:app --bind 0.0.0.0:10000 --workers 4 --timeout 120
 
 ```python
 # src/ai/client.py
-import os
-from openai import OpenAI
+from config import Config
 
-ZEN_BASE_URL = "https://opencode.ai/zen/v1"
-ZEN_MODEL = "deepseek-v4-flash-free"
-
-client = OpenAI(
-    api_key=os.getenv("ZEN_API_KEY", ""),
-    base_url=ZEN_BASE_URL,
-)
+GEMINI_MODEL = Config.GEMINI_MODEL  # e.g. "gemini-3.5-flash"
 
 def get_model() -> str:
-    return ZEN_MODEL
+    return GEMINI_MODEL
 ```
 
 ```python
@@ -402,25 +395,20 @@ Return JSON matching this schema:
 
 ```python
 # src/ai/chains.py
-from langchain.chains import LLMChain
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+from config import Config
 from src.ai.prompts import EVALUATION_PROMPT
 from src.ai.parsers import EvaluationParser
 
-def get_evaluation_chain() -> LLMChain:
-    llm = ChatOpenAI(
-        model="deepseek-v4-flash-free",
-        base_url="https://opencode.ai/zen/v1",
+def get_evaluation_chain():
+    llm = ChatGoogleGenerativeAI(
+        model=Config.GEMINI_MODEL,
+        google_api_key=Config.GEMINI_API_KEY,
         temperature=0.3,
-        model_kwargs={"response_format": {"type": "json_object"}},
+        response_mime_type="application/json",
         max_tokens=4096,
     )
-    return LLMChain(
-        llm=llm,
-        prompt=EVALUATION_PROMPT,
-        output_parser=EvaluationParser(),
-        verbose=False,
-    )
+    return EVALUATION_PROMPT | llm | EvaluationParser()
 ```
 
 **Temperature settings:**
@@ -990,10 +978,10 @@ FLASK_APP=app.py
 FLASK_ENV=development
 SECRET_KEY=change-this-to-a-random-secret-key
 
-# AI Provider (DeepSeek v4 free via OpenCode Zen API)
-ZEN_API_KEY=
-ZEN_BASE_URL=https://opencode.ai/zen/v1
-ZEN_MODEL=deepseek-v4-flash-free
+# AI Provider (Google Gemini — free tier via personal API key)
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.5-flash
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 
 # App Config
 MAX_FILE_SIZE_MB=5
