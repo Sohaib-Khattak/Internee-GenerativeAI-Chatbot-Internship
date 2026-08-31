@@ -1,0 +1,66 @@
+[
+  {
+    "id": "faq-001",
+    "title": "What is Internee.pk?",
+    "content": "Internee.pk is a platform that connects Pakistani students with internship opportunities to gain practical experience in their field of study.",
+    "category": "faq",
+    "tags": ["general", "about"],
+    "language": "en"
+  },
+  {
+    "id": "faq-002",
+    "title": "Reporting time kya hai?",
+    "content": "Reporting time is 9:00 AM to 6:00 PM (Monday to Friday). Weekends are off unless specified otherwise by your mentor.",
+    "category": "faq",
+    "tags": ["timings", "reporting", "hours"],
+    "language": "both"
+  },
+  {
+    "id": "faq-003",
+    "title": "Dress code kya hai?",
+    "content": "Dress code is smart casual. Formal wear is not required but we expect professional and decent attire during working hours.",
+    "category": "faq",
+    "tags": ["dress code", "attire"],
+    "language": "both"
+  },
+  {
+    "id": "faq-004",
+    "title": "Stipend kab aayega?",
+    "content": "Stipends are disbursed on the 1st of every month for the previous month. If the 1st falls on a weekend, it is processed on the next working day. For any delays, please contact HR at hr@internee.pk.",
+    "category": "faq",
+    "tags": ["stipend", "payment", "salary"],
+    "language": "both"
+  },
+  {
+    "id": "faq-005",
+    "title": "Leave lena hai — process kya hai?",
+    "content": "To apply for leave: 1) Inform your mentor at least 1 day in advance. 2) Submit a leave application via the portal. 3) Wait for approval. For sick leave, inform your mentor before reporting time on the same day.",
+    "category": "faq",
+    "tags": ["leave", "holiday", "absence"],
+    "language": "both"
+  },
+  {
+    "id": "faq-006",
+    "title": "Certificate kab mile ga?",
+    "content": "Internship completion certificates are issued within 7 working days after your internship end date and successful submission of all pending tasks.",
+    "category": "faq",
+    "tags": ["certificate", "completion"],
+    "language": "both"
+  },
+  {
+    "id": "faq-007",
+    "title": "Attendance kaise mark karein?",
+    "content": "Attendance is marked through the Internee.pk portal. Login to your account and click on 'Mark Attendance' button. Make sure to mark attendance within the first 30 minutes of reporting time.",
+    "category": "faq",
+    "tags": ["attendance", "mark"],
+    "language": "both"
+  },
+  {
+    "id": "faq-008",
+    "title": "What is the probation period?",
+    "content": "The probation period for interns is 2 weeks. During this time, your performance will be evaluated by your mentor. Successful completion of probation confirms your internship.",
+    "category": "faq",
+    "tags": ["probation", "trial", "evaluation"],
+    "language": "en"
+  }
+]

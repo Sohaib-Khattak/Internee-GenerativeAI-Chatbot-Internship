@@ -1,0 +1,29 @@
+# Render Blueprint — GenAI Chatbot for Intern Queries
+# One-click deployment: connect the repo in Render, then "Apply Blueprint".
+# All services, env vars, and the start command below are pre-configured.
+
+services:
+  - type: web
+    name: internee-intern-query-chatbot
+    runtime: python
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash
+      # Set these securely in the Render dashboard (never commit secrets):
+      - key: SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false

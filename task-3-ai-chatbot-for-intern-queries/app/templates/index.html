@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internee.pk — AI Assistant</title>
+  <style>
+    /* ─── Reset & Base ─── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* ─── Hero / Landing ─── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100%;
+      padding: 0;
+      background: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a1a 70%);
+      transition: opacity 0.5s, transform 0.5s;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero.hidden {
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+      position: absolute;
+    }
+    .hero .hero-bg {
+      width: 80%;
+      height: 70vh;
+      object-fit: contain;
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100%;
+      padding: 2rem;
+      background: rgba(0,0,0,0.5);
+    }
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #6c8cff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: #8888aa;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+    .btn-start {
+      padding: 14px 40px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #6c8cff, #a78bfa);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(108, 140, 255, 0.4);
+    }
+
+    /* ─── Chat Container ─── */
+    .chat-container {
+      display: none;
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      flex: 1;
+    }
+    .chat-container.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Quick Actions (shown on first load) ─── */
+    .quick-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .quick-actions.hidden {
+      display: none;
+    }
+    .quick-btn {
+      padding: 10px 20px;
+      border: 1px solid #333;
+      border-radius: 20px;
+      background: #12122a;
+      color: #ccc;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quick-btn:hover {
+      background: #1a1a3e;
+      border-color: #6c8cff;
+      color: #fff;
+    }
+
+    /* ─── Chat Layout ─── */
+    .chat-layout {
+      display: flex;
+      gap: 1rem;
+      flex: 1;
+      align-items: flex-start;
+    }
+    .chat-avatar {
+      flex-shrink: 0;
+      width: 60px;
+      height: 60px;
+    }
+    .chat-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: drop-shadow(0 0 20px rgba(100, 140, 255, 0.2));
+    }
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* ─── Messages ─── */
+    .messages {
+      flex: 1;
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .msg {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #6c8cff, #a78bfa);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.bot {
+      align-self: flex-start;
+      background: #1a1a3e;
+      color: #ddd;
+      border-bottom-left-radius: 4px;
+    }
+    .msg.bot .typing-indicator {
+      display: inline-flex;
+      gap: 4px;
+    }
+    .msg.bot .typing-indicator span {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #6c8cff;
+      animation: typing 1.4s infinite;
+    }
+    .msg.bot .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .msg.bot .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
+
+    /* ─── Input ─── */
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #333;
+      border-radius: 24px;
+      background: #12122a;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-row input:focus { border-color: #6c8cff; }
+    .input-row input::placeholder { color: #555; }
+    .input-row button {
+      width: 44px; height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c8cff, #a78bfa);
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .input-row button:hover { transform: scale(1.05); }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.5rem; }
+      .hero .robot { width: 140px; }
+      .chat-avatar { width: 40px; height: 40px; }
+      .chat-avatar img { width: 40px; height: 40px; border-radius: 50%; }
+      .msg { max-width: 90%; font-size: 0.88rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Landing / Welcome Screen -->
+  <div class="hero" id="hero">
+    <img src="{{ url_for('static', filename='robot.png') }}" alt="AI Robot" class="hero-bg">
+    <div class="hero-content">
+      <h1>YOUR CUSTOM AI ASSISTANT</h1>
+      <p>Powered by Internee.pk</p>
+      <button class="btn-start" onclick="startChat()">Get Started</button>
+    </div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="chat-container" id="chatContainer">
+    <div class="quick-actions" id="quickActions">
+      <button class="quick-btn" onclick="sendQuick('FAQs')">Frequently Asked Questions</button>
+      <button class="quick-btn" onclick="sendQuick('Customer Support')">Customer Support</button>
+      <button class="quick-btn" onclick="sendQuick('General Inquiry')">General Inquiry</button>
+    </div>
+
+    <div class="chat-layout">
+      <div class="chat-avatar">
+        <img src="{{ url_for('static', filename='robot.png') }}" alt="Robot">
+      </div>
+      <div class="chat-main">
+        <div class="messages" id="messages"></div>
+        <div class="input-row">
+          <input type="text" id="input" placeholder="Ask Your Question" onkeydown="if(event.key==='Enter') send()">
+          <button onclick="send()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let user_id = 'user_' + Math.random().toString(36).slice(2, 10);
+
+    function startChat() {
+      document.getElementById('hero').classList.add('hidden');
+      const container = document.getElementById('chatContainer');
+      container.classList.add('active');
+      // Add welcome message
+      addMessage('bot', '👋 Hello! I\'m the Internee.pk AI assistant. I can help you with tasks, policies, FAQs, and more. What would you like to know?');
+      setTimeout(() => document.getElementById('input').focus(), 300);
+    }
+
+    function addMessage(role, text) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = text;
+      document.getElementById('messages').appendChild(div);
+      div.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function sendQuick(text) {
+      document.getElementById('quickActions').classList.add('hidden');
+      addMessage('user', text);
+      callAPI(text);
+    }
+
+    function send() {
+      const input = document.getElementById('input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      document.getElementById('quickActions').classList.add('hidden');
+      addMessage('user', text);
+      callAPI(text);
+    }
+
+    async function callAPI(message) {
+      // Show typing indicator
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'msg bot';
+      typingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+      document.getElementById('messages').appendChild(typingDiv);
+
+      try {
+        const resp = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, user_id }),
+        });
+        const data = await resp.json();
+        // Remove typing indicator
+        typingDiv.remove();
+        addMessage('bot', data.reply || 'Sorry, I couldn\'t process that.');
+      } catch (err) {
+        typingDiv.remove();
+        addMessage('bot', 'Sorry, I\'m having trouble connecting. Please try again.');
+      }
+    }
+  </script>
+</body>
+</html>
