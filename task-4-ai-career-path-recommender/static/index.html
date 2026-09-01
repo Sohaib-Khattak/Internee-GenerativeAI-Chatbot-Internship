@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trailhead — career paths for interns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- tokens: "trail map" — warm paper ground, navigator orange ---------- */
+  :root{
+    --ground:#f4efe6;            /* aged-map paper */
+    --ground-deep:#e9e1d2;
+    --surface:#fffdf7;           /* raised paper */
+    --ink:#26221a;               /* near-black warm */
+    --muted:#6f6757;
+    --line:#d9cfbc;
+    --contour:#e0d6c2;           /* faint topographic lines */
+    --accent:#e2633b;            /* navigator orange — "you are here" */
+    --accent-ink:#fffaf2;
+    --accent-soft:#fbe3d8;
+    --nav:#2a7f6e;               /* trail green */
+    --nav-ink:#f3fbf8;
+    --strong:#2a7f3d; --strong-bg:#e2f0e3;
+    --moderate:#a86a00; --moderate-bg:#f9edcf;
+    --possible:#57504a; --possible-bg:#ece6da;
+    --focus:rgba(226,99,59,.35);
+    --shadow:0 10px 30px -18px rgba(38,34,26,.45);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#151a17; --ground-deep:#10140f; --surface:#1d231e; --ink:#ededdf;
+      --muted:#a2a693; --line:#333a30; --contour:#242b23; --accent:#ff8656; --accent-ink:#241309;
+      --accent-soft:#3a241a; --nav:#64b99f; --nav-ink:#0d2119;
+      --strong:#7cd492; --strong-bg:#1d3424; --moderate:#e2b34f; --moderate-bg:#3a2f13;
+      --possible:#c9c5b8; --possible-bg:#2b2e26; --focus:rgba(255,134,86,.4);
+      --shadow:0 12px 34px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#151a17; --ground-deep:#10140f; --surface:#1d231e; --ink:#ededdf;
+    --muted:#a2a693; --line:#333a30; --contour:#242b23; --accent:#ff8656; --accent-ink:#241309;
+    --accent-soft:#3a241a; --nav:#64b99f; --nav-ink:#0d2119;
+    --strong:#7cd492; --strong-bg:#1d3424; --moderate:#e2b34f; --moderate-bg:#3a2f13;
+    --possible:#c9c5b8; --possible-bg:#2b2e26; --focus:rgba(255,134,86,.4);
+    --shadow:0 12px 34px -20px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box; margin:0}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:"Inter",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased; min-height:100vh;
+    --webkit-nav: transparent;
+  }
+  /* topographic contour backdrop */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(60% 40% at 12% 8%, var(--accent-soft) 0%, transparent 55%),
+      radial-gradient(50% 40% at 88% 90%, transparent 0%, transparent 50%);
+    opacity:.55;
+  }
+  .contours{position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5}
+  .contours span{position:absolute; border:1px solid var(--contour); border-radius:50%}
+  .wrap{position:relative; z-index:1; max-width:62rem; margin:0 auto; padding:2rem 1.3rem 6rem}
+
+  /* ---------- hero ---------- */
+  header.hk{padding:2.6rem 0 1.6rem; position:relative}
+  .brand-row{display:flex; align-items:center; gap:.6rem; margin-bottom:1.6rem}
+  .waypoint-dot{width:11px; height:11px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+  .brand{font-family:"JetBrains Mono",monospace; font-weight:600; font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+  h1{
+    font-family:"Fraunces",Georgia,serif; font-weight:600;
+    font-size:clamp(2.4rem,6vw,3.8rem); line-height:1.02; text-wrap:balance; letter-spacing:-.01em;
+  }
+  h1 em{font-style: italic; color:var(--accent)}
+  .lede{color:var(--muted); max-width:52ch; font-size:1.05rem; margin-top:1rem}
+  .lede b{color:var(--ink); font-weight:600}
+
+  /* ---------- profile dock ---------- */
+  .dock{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    box-shadow:var(--shadow); padding:1.6rem; margin:2.2rem 0 2.4rem;
+  }
+  .dock-head{display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:.6rem}
+  .dock-title{font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:1.3rem}
+  .dock-hint{font-size:.8rem; color:var(--muted)}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:1.1rem}
+  @media(max-width:640px){.two{grid-template-columns:1fr}}
+  label{display:block; font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem}
+  textarea{
+    width:100%; min-height:3.6rem; resize:vertical; font-family:inherit; font-size:.95rem;
+    color:var(--ink); background:var(--ground); border:1px solid var(--line); border-radius:10px;
+    padding:.65rem .75rem;
+  }
+  textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--focus)}
+  .dock-actions{display:flex; align-items:flex-end; gap:1rem; flex-wrap:wrap; margin-top:1.1rem}
+  .field{display:flex; flex-direction:column; gap:.35rem}
+  .field small{color:var(--muted); font-size:.78rem}
+  input[type=text]{
+    font-family:inherit; font-size:.9rem; color:var(--ink); background:var(--ground);
+    border:1px solid var(--line); border-radius:10px; padding:.55rem .7rem; min-width:150px;
+  }
+  input[type=text]:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--focus)}
+  .switch{display:flex; align-items:center; gap:.4rem; cursor:pointer; font-size:.85rem; color:var(--muted); user-select:none}
+  .switch input{accent-color:var(--accent); width:16px; height:16px}
+  .btn{
+    appearance:none; cursor:pointer; border:none; border-radius:999px; font-family:inherit;
+    font-weight:700; font-size:.95rem; padding:.72rem 1.5rem; color:var(--accent-ink);
+    background:var(--accent); box-shadow:0 6px 18px -8px var(--accent);
+    display:inline-flex; align-items:center; gap:.5rem; transition:transform .12s ease, filter .12s ease;
+  }
+  .btn:hover{filter:brightness(1.05); transform:translateY(-1px)}
+  .btn:disabled{opacity:.55; cursor:not-allowed; transform:none}
+  .btn .arr{font-size:1.1rem; line-height:1}
+
+  /* ---------- results ---------- */
+  .trail-head{display:flex; align-items:baseline; gap:.6rem; margin:1.8rem 0 1.2rem}
+  .trail-head h2{font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:1.5rem}
+  .trail-head small{color:var(--muted)}
+  .spinner{display:none; color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:.8rem; margin-bottom:1rem}
+  .notice{border-radius:12px; padding:.8rem 1rem; font-size:.92rem; margin-bottom:1rem}
+  .notice.warn{background:var(--moderate-bg); color:var(--moderate)}
+  .notice.ok{background:var(--strong-bg); color:var(--strong)}
+
+  .role{
+    position:relative; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; box-shadow:var(--shadow); padding:1.3rem 1.4rem; margin-bottom:1.1rem;
+  }
+  .role::before{ /* trail connector */
+    content:""; position:absolute; left:-6px; top:26px; bottom:-20px; width:2px;
+    background:repeating-linear-gradient(var(--contour) 0 6px, transparent 6px 12px);
+  }
+  .role:last-child::before{display:none}
+  .role-top{display:flex; align-items:center; gap:.7rem; flex-wrap:wrap}
+  .role-title{font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:1.35rem}
+  .pill{font-family:"JetBrains Mono",monospace; font-size:.66rem; font-weight:600; letter-spacing:.05em;
+    text-transform:uppercase; padding:.22rem .6rem; border-radius:999px}
+  .pill.Strong{background:var(--strong-bg); color:var(--strong)}
+  .pill.Moderate{background:var(--moderate-bg); color:var(--moderate)}
+  .pill.Possible{background:var(--possible-bg); color:var(--possible)}
+  .pill.tag{background:var(--accent-soft); color:var(--accent); letter-spacing:.04em}
+  .role-side{margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:.72rem; color:var(--muted)}
+  .skills{display:flex; gap:.4rem; flex-wrap:wrap; margin:.9rem 0}
+  .sk{font-size:.8rem; padding:.18rem .6rem; border-radius:999px; border:1px solid var(--line); color:var(--muted)}
+  .sk.have{color:var(--strong); border-color:var(--strong); background:var(--strong-bg)}
+  .pathbtn{margin-top:.4rem}
+
+  .path-item{border-left:3px solid var(--accent); padding:.1rem 0 .2rem 1.1rem; margin:1rem 0}
+  .path-title{font-weight:600; display:flex; align-items:baseline; gap:.5rem}
+  .path-step{font-family:"JetBrains Mono",monospace; font-size:.72rem; color:var(--accent); font-weight:600}
+  .path-skill{font-family:"JetBrains Mono",monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+  .why{color:var(--muted); font-size:.92rem; margin-top:.3rem}
+  .resources{font-size:.82rem; color:var(--muted); margin-top:.5rem}
+  .resources b{font-weight:600; color:var(--ink)}
+  .done-btn{
+    margin-top:.7rem; appearance:none; background:transparent; color:var(--nav);
+    border:1px solid var(--nav); border-radius:999px; padding:.35rem .85rem; font-family:inherit;
+    font-size:.8rem; font-weight:600; cursor:pointer
+  }
+  .done-btn:hover{background:var(--nav); color:var(--nav-ink)}
+  .done-shelf{font-family:"JetBrains Mono",monospace; font-size:.78rem; color:var(--muted)}
+  .meta{font-size:.8rem; color:var(--muted); margin-top:1rem; font-style:italic}
+  .nopath{color:var(--muted); font-style:italic}
+
+  .rev{position:fixed; bottom:1rem; right:1.1rem; z-index:2; display:flex; gap:.4rem}
+  .themebtn{
+    appearance:none; cursor:pointer; border:1px solid var(--line); border-radius:999px;
+    background:var(--surface); color:var(--muted); font-family:"JetBrains Mono",monospace;
+    font-size:.7rem; padding:.35rem .7rem
+  }
+  .themebtn:hover{color:var(--ink); border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="contours" id="contours"></div>
+
+<div class="wrap">
+  <header class="hk">
+    <div class="brand-row">
+      <span class="waypoint-dot"></span>
+      <span class="brand">Trailhead · Career paths</span>
+    </div>
+    <h1>Find the trail that <em>fits you.</em></h1>
+    <p class="lede">You tell us <b>what you know</b> and <b>what pulls you in</b> — we chart the roles that fit, the path to each, and where you've already climbed. No career is a destiny; every one is a route you can walk.</p>
+  </header>
+
+  <section class="dock">
+    <div class="dock-head">
+      <div class="dock-title">Your starting point</div>
+      <span class="dock-hint">Be loose — we handle spelling and aliases</span>
+    </div>
+    <div class="two">
+      <div>
+        <label for="skills">Skills — what you already know</label>
+        <textarea id="skills" placeholder="Python, SQL, statistics"></textarea>
+      </div>
+      <div>
+        <label for="interests">Interests — what pulls you in</label>
+        <textarea id="interests" placeholder="Artificial intelligence, data"></textarea>
+      </div>
+    </div>
+    <div class="dock-actions">
+      <div class="field">
+        <label for="profile_id">Your trail id</label>
+        <input type="text" id="profile_id" placeholder="intern-1 (optional)">
+        <small>Add one to keep progress and re-rank roles as you learn.</small>
+      </div>
+      <label class="switch" for="gemini"><input type="checkbox" id="gemini"> Gemini AI matching</label>
+      <button class="btn" id="recommend-btn">Chart my paths <span class="arr">→</span></button>
+      <button class="btn" id="gen-btn" style="background:var(--nav);color:var(--nav-ink);box-shadow:0 6px 18px -8px var(--nav)">✨ Generate with AI</button>
+    </div>
+    <small style="display:block;margin-top:.7rem;color:var(--muted)">"Generate with AI" invents new roles &amp; a learning path from your words using Gemini — content is AI-made, so verify before trusting it.</small>
+  </section>
+
+  <div class="spinner" id="spinner">plotting your trails…</div>
+  <div id="out"></div>
+</div>
+
+<div class="rev">
+  <button class="themebtn" id="themetoggle">Theme</button>
+</div>
+
+<script>
+const $ = id=>document.getElementById(id);
+const out = $('out'); const sp = $('spinner'); const btn = $('recommend-btn'); const genBtn = $('gen-btn');
+const esc = s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const spn = on=>{sp.style.display=on?'block':'none'; btn.disabled=on; genBtn.disabled=on;};
+
+async function post(url,body){
+  const r = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||('Request failed ('+r.status+')'));
+  return d;
+}
+const fields=()=>({
+  skills:$('skills').value.split(/[,\n]/).map(s=>s.trim()).filter(Boolean),
+  interests:$('interests').value.split(/[,\n]/).map(s=>s.trim()).filter(Boolean),
+  profile_id:$('profile_id').value.trim()||undefined,
+  gemini:$('gemini').checked,
+});
+
+const pill=l=>`<span class="pill ${esc(l)}">${esc(l)}</span>`;
+function notice(k,t){return `<div class="notice ${k}">${t}</div>`}
+
+function roleMarkup(r){
+  const tags=[];
+  if(r.fully_qualified) tags.push('<span class="pill tag">fully qualified</span>');
+  if(r.interest_only) tags.push('<span class="pill tag">interest-fit</span>');
+  const have=(r.matched_skills||[]).map(s=>`<span class="sk have">✓ ${esc(s)}</span>`).join('');
+  const miss=(r.missing_skills||[]).map(s=>`<span class="sk">${esc(s)}</span>`).join('');
+  return `<div class="role">
+    <div class="role-top">
+      <span class="role-title">${esc(r.title)}</span>
+      ${pill(r.fit_label)} ${tags.join(' ')}
+    </div>
+    <div class="skills">${have}${miss}</div>
+    <button class="done-btn" data-path data-role="${esc(r.role_id)}">Open trail → ${esc(r.title)}</button>
+    <div class="path-item" id="path-${esc(r.role_id)}" style="display:none"></div>
+  </div>`;
+}
+
+btn.addEventListener('click', async()=>{
+  spn(true); out.innerHTML='';
+  try{
+    const rec = await post('/api/recommend', fields());    let html='';
+    if(rec.completeness==='no_match') html+=notice('warn',rec.message);
+    if(rec.unverified_terms&&rec.unverified_terms.length) html+=notice('warn','Not counted — confirm to include: '+rec.unverified_terms.map(esc).join(', '));
+    html+=`<div class="trail-head"><h2>${rec.candidates.length? 'Possible trails':'No trails yet'}</h2><small>ranked by fit · ${esc(rec.catalogue_version)}</small></div>`;
+    html+=rec.candidates.map(roleMarkup).join('');
+    if(rec.candidates.length) html+=`<p class="meta">${esc(rec.disclaimer)}</p>`;
+    out.innerHTML=html;
+    out.querySelectorAll('[data-path]').forEach(a=>a.addEventListener('click',openTrail));
+  }catch(e){out.innerHTML=notice('warn',e.message)}
+  finally{spn(false)}
+});
+
+async function generateWithAI(ev){
+  const gb=$('gen-btn'); spn(true); out.innerHTML='';
+  try{
+    const d=await post('/api/generate',{skills:fields().skills,interests:fields().interests});
+    let html=`<div class="notice ok">✨ AI-generated from your input — verify before trusting.</div>`;
+    html+=`<div class="trail-head"><h2>AI-invented roles</h2><small>gemini · bespoke, not from the curated list</small></div>`;
+    html+=(d.roles||[]).map(r=>{
+      const have=(r.matched_skills||[]).map(s=>`<span class="sk have">✓ ${esc(s)}</span>`).join('');
+      const miss=(r.missing_skills||[]).map(s=>`<span class="sk">${esc(s)}</span>`).join('');
+      return `<div class="role">
+        <div class="role-top"><span class="role-title">${esc(r.title)}</span><span class="pill tag">AI</span></div>
+        <p class="why" style="margin:.4rem 0 .6rem">${esc(r.why)}</p>
+        <div class="skills">${have}${miss}</div>
+      </div>`;
+    }).join('');
+    html+=`<div class="trail-head"><h2>Learning path for the top role</h2></div>`;
+    html+=(d.path||[]).map(m=>`
+      <div class="path-item">
+        <div class="path-title"><span class="path-step">${m.order}</span> <span>${esc(m.title)}</span> <span class="path-skill">${esc(m.skill)}</span></div>
+        <p class="why">${esc(m.rationale)}</p>
+        <div class="resources"><b>Signposts</b>: ${(m.resources||[]).map(esc).join(' · ')||'—'}</div>
+      </div>`).join('');
+    html+=`<p class="meta">${esc(d.disclaimer)}</p>`;
+    out.innerHTML=html;
+  }catch(e){out.innerHTML=notice('warn',e.message)}
+  finally{spn(false)}
+}
+
+async function openTrail(ev){
+  const b=ev.currentTarget;
+  const box=$('path-'+b.dataset.role);
+  if(box.style.display!=='none'){box.style.display='none';b.textContent='Open trail → '+b.dataset.role;return}
+  b.textContent='Plotting…';
+  try{
+    const d=await post('/api/learning_path',{...fields(),role_id:b.dataset.role});
+    box.style.display='block';
+    b.textContent='Trail for '+d.role_title+' ↑';
+    if(!d.milestones||!d.milestones.length){box.innerHTML=`<p class="nopath">You already cover the core skills for this role.</p><p class="meta">${esc(d.disclaimer)}</p>`;return}
+    box.innerHTML=d.milestones.map(m=>`
+      <div class="path-item">
+        <div class="path-title"><span class="path-step">${m.order}</span> <span>${esc(m.title)}</span> <span class="path-skill">${esc(m.skill)}</span></div>
+        <p class="why">${esc(m.rationale)}</p>
+        <div class="resources"><b>Signposts</b>: ${m.resources.map(esc).join(' · ')}</div>
+        <button class="done-btn" data-done="${esc(d.role_id)}" data-milestone="${m.order}" data-skill="${esc(m.skill)}">Mark this done ✓</button>
+      </div>`).join('');
+    box.innerHTML+=`<p class="meta">${esc(d.disclaimer)}</p>`;
+    box.querySelectorAll('[data-done]').forEach(b2=>b2.addEventListener('click',markDone));
+  }catch(e){b.textContent='Open trail → '+b.dataset.role; box.style.display='block'; box.innerHTML=notice('warn',e.message)}
+}
+
+async function markDone(ev){
+  const b=ev.currentTarget; b.disabled=true;
+  try{
+    await post('/api/progress',{profile_id:fields().profile_id||'guest',role_id:b.dataset.done,milestone:Number(b.dataset.milestone)});
+    b.textContent='✓ done';
+    out.insertAdjacentHTML('beforeend',notice('ok',`Recorded ${b.dataset.skill}. Re-run “Chart my paths” to see roles re-rank as you grow.`));
+  }catch(e){b.disabled=false;b.textContent='Retry';alert(e.message)}
+}
+
+// generate with AI
+genBtn.addEventListener('click', generateWithAI);
+
+// theme toggle
+const theme=$('themetoggle');
+theme.addEventListener('click',()=>{
+  const html=document.documentElement;
+  if(html.getAttribute('data-theme')==='dark'){html.removeAttribute('data-theme')}
+  else{html.setAttribute('data-theme','dark')}
+});
+
+// decorative contour rings
+(function(){
+  const wrap=$('contours'); const rings=[[18,14,16],[72,26,22],[40,70,30],[84,60,14],[8,78,20]];
+  for(const [x,y,r] of rings){const s=document.createElement('span');s.style.left=x+'%';s.style.top=y+'%';s.style.width=r+'vmax';s.style.height=r+'vmax';wrap.appendChild(s)}
+})();
+</script>
+</body>
+</html>

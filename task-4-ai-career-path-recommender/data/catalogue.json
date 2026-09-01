@@ -1,0 +1,641 @@
+{
+  "catalogue_version": "1.1.0",
+  "description": "Single source of truth for roles, skills, and their aliases. Static and versioned: bump the version whenever roles/skills/aliases change. Determines eligibility (relevance floor) and matched/missing skills for Feature 1.",
+  "skills": {
+    "python": {
+      "name": "Python",
+      "domain": "programming",
+      "aliases": [
+        "py",
+        "python3",
+        "python programming"
+      ]
+    },
+    "javascript": {
+      "name": "JavaScript",
+      "domain": "programming",
+      "aliases": [
+        "js",
+        "node",
+        "nodejs",
+        "typescript"
+      ]
+    },
+    "html_css": {
+      "name": "HTML/CSS",
+      "domain": "frontend",
+      "aliases": [
+        "html",
+        "css",
+        "web design"
+      ]
+    },
+    "sql": {
+      "name": "SQL",
+      "domain": "data",
+      "aliases": [
+        "sql databases",
+        "relational databases",
+        "postgres",
+        "mysql"
+      ]
+    },
+    "statistics": {
+      "name": "Statistics",
+      "domain": "data",
+      "aliases": [
+        "stats",
+        "probability",
+        "math for data"
+      ]
+    },
+    "machine_learning": {
+      "name": "Machine Learning",
+      "domain": "data",
+      "aliases": [
+        "ml",
+        "deep learning",
+        "ai",
+        "tensorflow",
+        "pytorch"
+      ]
+    },
+    "data_visualization": {
+      "name": "Data Visualization",
+      "domain": "data",
+      "aliases": [
+        "data viz",
+        "charts",
+        "dashboarding"
+      ]
+    },
+    "cloud": {
+      "name": "Cloud",
+      "domain": "infrastructure",
+      "aliases": [
+        "aws",
+        "azure",
+        "gcp",
+        "devops"
+      ]
+    },
+    "linux": {
+      "name": "Linux",
+      "domain": "infrastructure",
+      "aliases": [
+        "bash",
+        "shell",
+        "unix"
+      ]
+    },
+    "networking": {
+      "name": "Networking",
+      "domain": "infrastructure",
+      "aliases": [
+        "tcp/ip",
+        "http",
+        "protocols"
+      ]
+    },
+    "mobile": {
+      "name": "Mobile Development",
+      "domain": "programming",
+      "aliases": [
+        "android",
+        "ios",
+        "swift",
+        "kotlin",
+        "react native"
+      ]
+    },
+    "project_management": {
+      "name": "Project Management",
+      "domain": "business",
+      "aliases": [
+        "agile",
+        "scrum",
+        "pm"
+      ]
+    }
+  },
+  "interests": {
+    "artificial_intelligence": {
+      "name": "Artificial Intelligence",
+      "aliases": [
+        "ai",
+        "machine learning interest",
+        "intelligent systems"
+      ]
+    },
+    "web_development": {
+      "name": "Web Development",
+      "aliases": [
+        "web",
+        "frontend",
+        "backend web",
+        "building websites"
+      ]
+    },
+    "data_analysis": {
+      "name": "Data Analysis",
+      "aliases": [
+        "data",
+        "analytics",
+        "working with data",
+        "numbers"
+      ]
+    },
+    "mobile_apps": {
+      "name": "Mobile Apps",
+      "aliases": [
+        "apps",
+        "app development",
+        "mobile"
+      ]
+    },
+    "infrastructure": {
+      "name": "Infrastructure & Ops",
+      "aliases": [
+        "devops",
+        "cloud",
+        "systems",
+        "servers"
+      ]
+    },
+    "visual_design": {
+      "name": "Visual Design",
+      "aliases": [
+        "design",
+        "ui",
+        "ux",
+        "creative"
+      ]
+    },
+    "leadership": {
+      "name": "Leadership",
+      "aliases": [
+        "management",
+        "team",
+        "people"
+      ]
+    }
+  },
+  "roles": [
+    {
+      "role_id": "data_analyst",
+      "title": "Data Analyst",
+      "description": "Collects, cleans, and interprets data to help organizations make decisions.",
+      "domain": "data",
+      "required_skills": [
+        {
+          "skill": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill": "statistics",
+          "weight": 0.8
+        },
+        {
+          "skill": "data_visualization",
+          "weight": 0.7
+        },
+        {
+          "skill": "python",
+          "weight": 0.5
+        }
+      ],
+      "related_interests": [
+        "data_analysis"
+      ],
+      "learning_path": [
+        {
+          "order": 1,
+          "skill": "sql",
+          "title": "Learn SQL querying",
+          "resources": [
+            "SQLBolt interactive lessons",
+            "Mode SQL Tutorial",
+            "PostgreSQL docs"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 2,
+          "skill": "statistics",
+          "title": "Study statistics & probability",
+          "resources": [
+            "Khan Academy Statistics",
+            "StatQuest with Josh Starmer"
+          ],
+          "weight": 0.8
+        },
+        {
+          "order": 3,
+          "skill": "data_visualization",
+          "title": "Practice data visualization",
+          "resources": [
+            "Matplotlib docs",
+            "R for Data Science (ggplot2)"
+          ],
+          "weight": 0.7
+        },
+        {
+          "order": 4,
+          "skill": "python",
+          "title": "Learn Python fundamentals",
+          "resources": [
+            "Python for Beginners (official tutorial)",
+            "Automate the Boring Stuff",
+            "Python Crash Course"
+          ],
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "role_id": "data_scientist",
+      "title": "Data Scientist",
+      "description": "Builds models and analyses to extract insight and prediction from data.",
+      "domain": "data",
+      "required_skills": [
+        {
+          "skill": "python",
+          "weight": 1.0
+        },
+        {
+          "skill": "statistics",
+          "weight": 1.0
+        },
+        {
+          "skill": "machine_learning",
+          "weight": 1.0
+        },
+        {
+          "skill": "sql",
+          "weight": 0.5
+        }
+      ],
+      "related_interests": [
+        "data_analysis",
+        "artificial_intelligence"
+      ],
+      "learning_path": [
+        {
+          "order": 1,
+          "skill": "python",
+          "title": "Learn Python fundamentals",
+          "resources": [
+            "Python for Beginners (official tutorial)",
+            "Automate the Boring Stuff",
+            "Python Crash Course"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 2,
+          "skill": "statistics",
+          "title": "Study statistics & probability",
+          "resources": [
+            "Khan Academy Statistics",
+            "StatQuest with Josh Starmer"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 3,
+          "skill": "machine_learning",
+          "title": "Learn machine learning & modeling",
+          "resources": [
+            "fast.ai Practical Deep Learning",
+            "Andrew Ng ML Specialization",
+            "scikit-learn docs"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 4,
+          "skill": "sql",
+          "title": "Learn SQL querying",
+          "resources": [
+            "SQLBolt interactive lessons",
+            "Mode SQL Tutorial",
+            "PostgreSQL docs"
+          ],
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "role_id": "backend_developer",
+      "title": "Backend Developer",
+      "description": "Builds server-side logic, APIs, and databases that power applications.",
+      "domain": "software",
+      "required_skills": [
+        {
+          "skill": "python",
+          "weight": 0.8
+        },
+        {
+          "skill": "javascript",
+          "weight": 0.6
+        },
+        {
+          "skill": "sql",
+          "weight": 0.7
+        },
+        {
+          "skill": "linux",
+          "weight": 0.6
+        },
+        {
+          "skill": "networking",
+          "weight": 0.5
+        }
+      ],
+      "related_interests": [
+        "web_development"
+      ],
+      "learning_path": [
+        {
+          "order": 1,
+          "skill": "python",
+          "title": "Learn Python fundamentals",
+          "resources": [
+            "Python for Beginners (official tutorial)",
+            "Automate the Boring Stuff",
+            "Python Crash Course"
+          ],
+          "weight": 0.8
+        },
+        {
+          "order": 2,
+          "skill": "sql",
+          "title": "Learn SQL querying",
+          "resources": [
+            "SQLBolt interactive lessons",
+            "Mode SQL Tutorial",
+            "PostgreSQL docs"
+          ],
+          "weight": 0.7
+        },
+        {
+          "order": 3,
+          "skill": "javascript",
+          "title": "Master JavaScript core",
+          "resources": [
+            "MDN JavaScript Guide",
+            "Eloquent JavaScript",
+            "JavaScript.info"
+          ],
+          "weight": 0.6
+        },
+        {
+          "order": 4,
+          "skill": "linux",
+          "title": "Get comfortable with Linux & the shell",
+          "resources": [
+            "Linux Journey",
+            "The Linux Command Line (book)"
+          ],
+          "weight": 0.6
+        },
+        {
+          "order": 5,
+          "skill": "networking",
+          "title": "Understand networking basics",
+          "resources": [
+            "Khan Academy Computer Networks",
+            "Beej's Guide to Network Programming"
+          ],
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "role_id": "frontend_developer",
+      "title": "Frontend Developer",
+      "description": "Builds the user-facing interface of websites and applications.",
+      "domain": "software",
+      "required_skills": [
+        {
+          "skill": "javascript",
+          "weight": 1.0
+        },
+        {
+          "skill": "html_css",
+          "weight": 1.0
+        }
+      ],
+      "related_interests": [
+        "web_development",
+        "visual_design"
+      ],
+      "learning_path": [
+        {
+          "order": 1,
+          "skill": "javascript",
+          "title": "Master JavaScript core",
+          "resources": [
+            "MDN JavaScript Guide",
+            "Eloquent JavaScript",
+            "JavaScript.info"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 2,
+          "skill": "html_css",
+          "title": "Build semantic HTML & CSS",
+          "resources": [
+            "MDN HTML/CSS",
+            "freeCodeCamp Responsive Web Design"
+          ],
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "role_id": "ml_engineer",
+      "title": "Machine Learning Engineer",
+      "description": "Builds and deploys machine-learning systems into production.",
+      "domain": "data",
+      "required_skills": [
+        {
+          "skill": "python",
+          "weight": 1.0
+        },
+        {
+          "skill": "machine_learning",
+          "weight": 1.0
+        },
+        {
+          "skill": "statistics",
+          "weight": 0.7
+        },
+        {
+          "skill": "cloud",
+          "weight": 0.5
+        }
+      ],
+      "related_interests": [
+        "artificial_intelligence"
+      ],
+      "learning_path": [
+        {
+          "order": 1,
+          "skill": "python",
+          "title": "Learn Python fundamentals",
+          "resources": [
+            "Python for Beginners (official tutorial)",
+            "Automate the Boring Stuff",
+            "Python Crash Course"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 2,
+          "skill": "machine_learning",
+          "title": "Learn machine learning & modeling",
+          "resources": [
+            "fast.ai Practical Deep Learning",
+            "Andrew Ng ML Specialization",
+            "scikit-learn docs"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 3,
+          "skill": "statistics",
+          "title": "Study statistics & probability",
+          "resources": [
+            "Khan Academy Statistics",
+            "StatQuest with Josh Starmer"
+          ],
+          "weight": 0.7
+        },
+        {
+          "order": 4,
+          "skill": "cloud",
+          "title": "Get hands-on with the cloud",
+          "resources": [
+            "AWS/Azure/GCP free tier tutorials",
+            "Docker quickstart"
+          ],
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "role_id": "devops_engineer",
+      "title": "DevOps Engineer",
+      "description": "Automates and operates the infrastructure that runs software reliably.",
+      "domain": "infrastructure",
+      "required_skills": [
+        {
+          "skill": "linux",
+          "weight": 1.0
+        },
+        {
+          "skill": "cloud",
+          "weight": 1.0
+        },
+        {
+          "skill": "networking",
+          "weight": 0.7
+        },
+        {
+          "skill": "python",
+          "weight": 0.5
+        }
+      ],
+      "related_interests": [
+        "infrastructure"
+      ],
+      "learning_path": [
+        {
+          "order": 1,
+          "skill": "linux",
+          "title": "Get comfortable with Linux & the shell",
+          "resources": [
+            "Linux Journey",
+            "The Linux Command Line (book)"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 2,
+          "skill": "cloud",
+          "title": "Get hands-on with the cloud",
+          "resources": [
+            "AWS/Azure/GCP free tier tutorials",
+            "Docker quickstart"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 3,
+          "skill": "networking",
+          "title": "Understand networking basics",
+          "resources": [
+            "Khan Academy Computer Networks",
+            "Beej's Guide to Network Programming"
+          ],
+          "weight": 0.7
+        },
+        {
+          "order": 4,
+          "skill": "python",
+          "title": "Learn Python fundamentals",
+          "resources": [
+            "Python for Beginners (official tutorial)",
+            "Automate the Boring Stuff",
+            "Python Crash Course"
+          ],
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "role_id": "mobile_developer",
+      "title": "Mobile Developer",
+      "description": "Builds native or cross-platform mobile applications.",
+      "domain": "software",
+      "required_skills": [
+        {
+          "skill": "mobile",
+          "weight": 1.0
+        },
+        {
+          "skill": "javascript",
+          "weight": 0.7
+        }
+      ],
+      "related_interests": [
+        "mobile_apps"
+      ],
+      "learning_path": [
+        {
+          "order": 1,
+          "skill": "mobile",
+          "title": "Build mobile apps",
+          "resources": [
+            "Android Developers training",
+            "Apple SwiftUI tutorials"
+          ],
+          "weight": 1.0
+        },
+        {
+          "order": 2,
+          "skill": "javascript",
+          "title": "Master JavaScript core",
+          "resources": [
+            "MDN JavaScript Guide",
+            "Eloquent JavaScript",
+            "JavaScript.info"
+          ],
+          "weight": 0.7
+        }
+      ]
+    }
+  ]
+}

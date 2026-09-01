@@ -1,0 +1,10 @@
+# secrets — never commit the API key
+.env
+
+# runtime-generated artifacts
+data/*.db
+data/catalogue_embeddings.json
+
+# python caches
+__pycache__/
+.pytest_cache/
